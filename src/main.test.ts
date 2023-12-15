@@ -5,6 +5,7 @@ import 'regenerator-runtime/runtime';
 import { SERVER_DOWN_COUNT, kv } from './utils/http.utils';
 
 export * from './scenarios/newsfeed.scenarios';
+// export * from './scenarios/timeline.scenarios';
 
 export const options: Options = {
   scenarios: {
@@ -13,9 +14,12 @@ export const options: Options = {
       executor: 'ramping-vus',
       startVUs: 1,
       stages: [
-        { duration: '10s', target: 3 },
-        { duration: '15s', target: 6 },
-        { duration: '5s', target: 0 },
+        { duration: '5s', target: 100 },
+        { duration: '10s', target: 500 },
+        { duration: '1m', target: 1000 },
+        { duration: '2m', target: 2000 },
+        { duration: '30s', target: 500 },
+        { duration: '10s', target: 0 },
       ],
     },
   },

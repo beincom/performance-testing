@@ -28,30 +28,42 @@ async function demoPickContent(actor: Actor, contents: any[]): Promise<any> {
   }
 }
 
-export async function newsfeedScenario(): Promise<void> {
-  await group('NewsfeedSession', async () => {
+export async function timelineScenario(): Promise<void> {
+  await group('TimelineSession', async () => {
     const actor = Actor.init();
 
-    const randomGetNewsfeedTimes = generateRandomNumber(1, 5);
+    const joinedCommunitiesResult = await actor.getJoinedCommunities();
+    if (!joinedCommunitiesResult?.data) {
+      return check(null, {
+        'Get joined communities': () => false,
+      });
+    }
+
+    const pickedCommunity =
+      joinedCommunitiesResult.data[
+        generateRandomNumber(0, joinedCommunitiesResult.data.length - 1)
+      ];
+
+    const randomGetTimelineTimes = generateRandomNumber(1, 5);
 
     let hasNextPage = true;
     let endCursor;
 
-    for (let i = 0; i < randomGetNewsfeedTimes; i++) {
+    for (let i = 0; i < randomGetTimelineTimes; i++) {
       if (hasNextPage) {
-        const newsfeedResult = await actor.getNewsfeed(endCursor);
-        if (!newsfeedResult?.data) {
+        const timelineResult = await actor.getTimeline(pickedCommunity.group_id, endCursor);
+        if (!timelineResult?.data) {
           return check(null, {
-            'Get newsfeed': () => false,
+            'Get timeline': () => false,
           });
         }
 
-        // if (newsfeedResult.data.list.length) {
-        //   await demoPickContent(actor, newsfeedResult.data.list);
-        // }
+        if (timelineResult.data.list.length) {
+          await demoPickContent(actor, timelineResult.data.list);
+        }
 
-        hasNextPage = newsfeedResult.meta.has_next_page;
-        endCursor = newsfeedResult.meta.end_cursor;
+        hasNextPage = timelineResult.meta.has_next_page;
+        endCursor = timelineResult.meta.end_cursor;
 
         sleep(generateRandomNumber(0, 5000));
       }
