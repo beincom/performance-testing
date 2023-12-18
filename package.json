@@ -31,6 +31,7 @@
     "webpack-glob-entries": "^1.0.1"
   },
   "scripts": {
+    "create-data": "npx ts-node scripts/main.script.ts",
     "build": "webpack",
     "k6": "./k6 run dist/main.test.js"
   },
@@ -46,6 +47,7 @@
     "pino": "^8.16.2",
     "prompts": "^2.4.2",
     "regenerator-runtime": "^0.14.0",
+    "ts-node": "^10.9.2",
     "uuid": "^9.0.1"
   }
 }

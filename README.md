@@ -42,7 +42,7 @@ docker run --rm -e GOOS=windows -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" `
 3. Run the test
 
 ```bash
-./k6 run --out dashboard=report=test-report.html dist/main.test.js
+./k6 run --out dashboard=report=dashboard/test-report.html dist/main.test.js
 ```
 
 ## Writing own tests
@@ -52,6 +52,19 @@ House rules for writing tests:
 - The test code is located in `src` folder
 - The entry points for the tests need to have "_test_" word in the name to distinguish them from auxiliary files. You can change the entry [here](./webpack.config.js#L8).
 - If static files are required then add them to `./assets` folder. Its content gets copied to the destination folder (`dist`) along with compiled scripts.
+
+## Steps to run the seed data
+
+1. Change config
+
+- Update config in `config.ts` if you need.
+- Update `communityIndex` in `scripts/main.script.ts` to change the community for create contents.
+
+2. Run the seed
+
+```bash
+yarn create-data
+```
 
 ### Transpiling and Bundling
 
