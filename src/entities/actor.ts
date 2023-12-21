@@ -1,3 +1,4 @@
+import { CONFIGS } from '../../config';
 import { generateUserNameSeed } from '../../scripts/seed/user-seed-generator';
 import { COMMON_CONFIG, SERVICE } from '../common';
 import { GET } from '../utils/http.utils';
@@ -11,7 +12,7 @@ export class Actor {
   }
 
   public static init(): Actor {
-    const randomUserIndex = rand(20);
+    const randomUserIndex = rand(CONFIGS.NUMBER_OF_USERS);
     const username = generateUserNameSeed(randomUserIndex);
     const actor = new Actor({ username });
 
@@ -28,7 +29,7 @@ export class Actor {
   }
 
   public async getNewsfeed(after?: string): Promise<any> {
-    let url = `${SERVICE.CONTENT.HOST}/newsfeed?limit=10`;
+    let url = `${SERVICE.CONTENT.HOST}/newsfeed?limit=20`;
     if (after) {
       url += `&after=${after}`;
     }
@@ -78,7 +79,7 @@ export class Actor {
   }
 
   public async getComments(contentId: string, after?: string): Promise<any> {
-    let url = `${SERVICE.CONTENT.HOST}/comments?post_id=${contentId}&limit=10`;
+    let url = `${SERVICE.CONTENT.HOST}/comments?post_id=${contentId}&limit=20`;
     if (after) {
       url += `&after=${after}`;
     }
@@ -90,7 +91,7 @@ export class Actor {
   }
 
   public async getTimeline(groupId: string, after?: string): Promise<any> {
-    let url = `${SERVICE.CONTENT.HOST}/timeline/${groupId}?limit=10`;
+    let url = `${SERVICE.CONTENT.HOST}/timeline/${groupId}?limit=20`;
     if (after) {
       url += `&after=${after}`;
     }

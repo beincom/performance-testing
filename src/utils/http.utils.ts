@@ -1,5 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import http from 'k6/http';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 import { Counter } from 'k6/metrics'; // @ts-ignore
 import { openKv } from 'k6/x/kv';
 
@@ -173,11 +173,11 @@ async function sendHttpRequest(request: Function, data: ApiData): Promise<any> {
         ServerDownCounter.add(1);
       }
     } else {
-      console.error(JSON.stringify(res, null, 2));
+      console.error(res.body);
       ServerDownCounter.add(1);
     }
 
-    throw new Error(res.toString());
+    return null;
   }
 
   return res.json();
