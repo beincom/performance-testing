@@ -1,4 +1,4 @@
-import { ORDER, ROLE_TYPE } from '@beincom/constants';
+import { ORDER } from '@beincom/constants';
 import axios from 'axios';
 
 import { CONFIGS } from '../../config';
@@ -232,7 +232,8 @@ export type IUser = {
   id: string;
   username: string;
   email: string;
-  password: string;
+  password?: string;
+  isAdmin?: boolean;
 };
 
 export type Community = {
@@ -264,74 +265,6 @@ export class User extends HttpService {
     return new User({ ...options, token });
   }
 
-  public async getInvitations(communityId: string, params: QueryParams): Promise<{ id: string }[]> {
-    const res = await this.sendRequestAndRetry(async () =>
-      this.http.get(`group/manage/communities/${communityId}/invitations`, {
-        params,
-        headers: {
-          'x-version-id': '1.1.0',
-        },
-      })
-    );
-
-    return res.data.data;
-  }
-
-  public async cancelInvitation(invitationId: string): Promise<void> {
-    return this.sendRequestAndRetry(async () =>
-      this.http.put(`group/invitations/${invitationId}/cancel`, {})
-    );
-  }
-
-  public async approveAllJoinRequests(groupId: string): Promise<void> {
-    return this.sendRequestAndRetry(async () =>
-      this.http.put(`group/groups/${groupId}/join-requests/approve`, {})
-    );
-  }
-
-  public async getInternalGroupMembers(body: unknown): Promise<{
-    data: string[];
-    meta: {
-      cursors: {
-        prev: string;
-        next: string;
-      };
-    };
-  }> {
-    const res = await this.sendRequestAndRetry(async () =>
-      this.http.post('internal/groups/ids/users', body, {
-        baseURL: 'http://api.beincom.io.private/v1/group',
-      })
-    );
-
-    return res.data;
-  }
-
-  public async removeGroupMembersAsManager(
-    communityId: string,
-    groupId: string,
-    userIds: string[]
-  ): Promise<{
-    group_admin: { data: IUser[] };
-    group_member: { data: IUser[] };
-  }> {
-    const res = await this.sendRequestAndRetry(async () =>
-      this.http.put(`group/manage/communities/${communityId}/groups/${groupId}/users/remove`, {
-        userIds,
-      })
-    );
-
-    return res.data.data;
-  }
-
-  public async revokeCommunityAdmin(userIds: string[], communityId: string): Promise<void> {
-    return this.sendRequestAndRetry(async () =>
-      this.http.put(`group/communities/${communityId}/revoke-admin`, {
-        userIds,
-      })
-    );
-  }
-
   public async joinGroup(groupId: string): Promise<void> {
     return this.sendRequestAndRetry(async () =>
       this.http.post(
@@ -346,33 +279,57 @@ export class User extends HttpService {
     );
   }
 
-  public async assignCommunityAdmin(userIds: string[], communityId: string): Promise<void> {
-    return this.sendRequestAndRetry(async () =>
-      this.http.put(`group/communities/${communityId}/assign-admin`, {
-        userIds,
-      })
-    );
+  public async approveAllJoinRequests(groupId: string): Promise<void> {
+    try {
+      return this.sendRequestAndRetry(async () =>
+        this.http.put(`group/groups/${groupId}/join-requests/approve`, {})
+      );
+    } catch (e) {
+      console.error('approveAllJoinRequests', e.response.data);
+      throw new Error(`Cannot approve all join requests in group id: ${groupId}`);
+    }
+  }
+
+  public async declineAllJoinRequests(groupId: string): Promise<void> {
+    try {
+      return this.sendRequestAndRetry(async () =>
+        this.http.put(`group/groups/${groupId}/join-requests/decline`, {})
+      );
+    } catch (e) {
+      console.error('declineAllJoinRequests', e.response.data);
+      throw new Error(`Cannot decline all join requests in group id: ${groupId}`);
+    }
   }
 
   public async createDraftPost(groupIds: string[]): Promise<{ id: string }> {
-    const res = await this.sendRequestAndRetry(async () =>
-      this.http.post(
-        'content/posts',
-        { audience: { group_ids: groupIds } },
-        { headers: { 'x-version-id': '1.12.0' } }
-      )
-    );
-    return res.data.data;
+    try {
+      const res = await this.sendRequestAndRetry(async () =>
+        this.http.post(
+          'content/posts',
+          { audience: { group_ids: groupIds } },
+          { headers: { 'x-version-id': '1.12.0' } }
+        )
+      );
+      return res.data.data;
+    } catch (e) {
+      console.error('createDraftPost', e.response.data);
+      throw new Error(`Cannot create draft post in group ids: ${groupIds.join(', ')}`);
+    }
   }
 
   public async publishPost(postId: string, content: string): Promise<void> {
-    return this.sendRequestAndRetry(async () =>
-      this.http.put(
-        `content/posts/${postId}/publish`,
-        { content },
-        { headers: { 'x-version-id': '1.12.0' } }
-      )
-    );
+    try {
+      return this.sendRequestAndRetry(async () =>
+        this.http.put(
+          `content/posts/${postId}/publish`,
+          { content },
+          { headers: { 'x-version-id': '1.12.0' } }
+        )
+      );
+    } catch (e) {
+      console.error('publishPost', e.response.data);
+      throw new Error(`Cannot publish post: ${postId}`);
+    }
   }
 }
 
@@ -404,47 +361,35 @@ export class SysAdmin extends User {
 
       return res.data.data.find((community: any) => community.name === name);
     } catch (e) {
-      console.error('findCommunityByName', e.response);
+      console.error('findCommunityByName', e.response.data);
       throw new Error(`Cannot find the community with name: ${name}`);
     }
   }
 
-  public async getUsersByUsernames(usernames: string[]): Promise<IUser[]> {
-    return Promise.all(usernames.map(async (username) => this.getUserByUsername(username)));
+  public async getCommunityMembers(communityId: string, limit: number = 10): Promise<IUser[]> {
+    try {
+      const res = await this.http.get(`/group/admin/communities/${communityId}/members`, {
+        params: {
+          limit,
+        },
+      });
+
+      return res.data.data;
+    } catch (e) {
+      console.error('getCommunityMembers', e.response.data);
+      throw new Error(`Cannot get the community members with community id: ${communityId}`);
+    }
   }
 
-  public async getUserByUsername(username: string): Promise<IUser> {
-    const res = await this.sendRequestAndRetry(async () =>
-      this.http.get(`user/users/${username}/profile?type=username`)
-    );
-    return res.data.data;
-  }
+  public async findUserById(userId: string): Promise<IUser> {
+    try {
+      const res = await this.http.get(`/user/admin/users/${userId}/profile`);
 
-  public async getInternalUsersByIds(ids: string[]): Promise<IUser[]> {
-    const res = await this.sendRequestAndRetry(async () =>
-      this.http.post('internal/users/ids?deactivated=included', ids, {
-        baseURL: 'http://api.beincom.io.private/v1/user',
-      })
-    );
-
-    return res.data.data;
-  }
-
-  public async findUsersInGroupsByRoles(
-    groupIds: string[],
-    roles: ROLE_TYPE[]
-  ): Promise<Record<ROLE_TYPE, Record<string, string[]>>> {
-    const res = await this.sendRequestAndRetry(async () =>
-      this.http.post(
-        'internal/groups/users',
-        { groupIds, roles },
-        {
-          baseURL: 'http://api.beincom.io.private/v1/group',
-        }
-      )
-    );
-
-    return res.data.data;
+      return res.data.data;
+    } catch (e) {
+      console.error('findUserById', e.response.data);
+      throw new Error(`Cannot get the user profile with user id: ${userId}`);
+    }
   }
 }
 

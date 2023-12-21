@@ -2,6 +2,6 @@ import { createData } from './create-data/create-data';
 
 (async () => {
   await createData({
-    communityIndex: 240,
+    communityIndex: 100,
   }).catch(console.error);
 })();

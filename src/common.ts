@@ -1,7 +1,7 @@
 import { CONFIGS } from '../config';
 
 export const COMMON_CONFIG = {
-  TIMEOUT: 20000,
+  TIMEOUT: 200000,
   LATEST_VER: '1.1.0',
   HEADER_KEY: {
     REQ_ID: 'x-request-id',
