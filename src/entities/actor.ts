@@ -1,7 +1,7 @@
 import { CONFIGS } from '../../config';
 import { generateUserNameSeed } from '../../scripts/seed/user-seed-generator';
 import { COMMON_CONFIG, SERVICE } from '../common';
-import { GET } from '../utils/http.utils';
+import { GET, POST, PUT } from '../utils/http.utils';
 import { rand } from '../utils/utils';
 
 export class Actor {
@@ -19,7 +19,7 @@ export class Actor {
     return actor;
   }
 
-  public getJoinedCommunities(): Promise<{
+  public async getJoinedCommunities(): Promise<{
     data: { id: string; group_id: string; name: string }[];
   }> {
     return GET({
@@ -99,6 +99,52 @@ export class Actor {
       actorUsername: this.username,
       url,
       headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
+    });
+  }
+
+  public async reaction(targetId: string, targetType: string, reactionName: string): Promise<any> {
+    const url = `${SERVICE.CONTENT.HOST}/reactions`;
+
+    return POST({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
+      body: {
+        target_id: targetId,
+        target: targetType,
+        reaction_name: reactionName,
+      },
+    });
+  }
+
+  public async markAsRead(contentId: string): Promise<any> {
+    const url = `${SERVICE.CONTENT.HOST}/contents/${contentId}/mark-as-read`;
+
+    return PUT({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
+    });
+  }
+
+  public async saveContent(contentId: string): Promise<any> {
+    const url = `${SERVICE.CONTENT.HOST}/contents/${contentId}/save`;
+
+    return POST({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
+    });
+  }
+
+  public async replyComment(contentId: string, commentId: string, content: string): Promise<any> {
+    const url = `${SERVICE.CONTENT.HOST}/comments/${commentId}/reply`;
+
+    return POST({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
+      body: { content, post_id: contentId },
     });
   }
 }
