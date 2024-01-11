@@ -147,4 +147,15 @@ export class Actor {
       body: { content, post_id: contentId },
     });
   }
+
+  public async comment(contentId: string, content: string): Promise<any> {
+    const url = `${SERVICE.CONTENT.HOST}/comments`;
+
+    return POST({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
+      body: { content, post_id: contentId },
+    });
+  }
 }

@@ -11,12 +11,12 @@ export const options: Options = {
     newsfeed: {
       exec: 'newsfeedScenario',
       executor: 'ramping-vus',
-      startVUs: 50,
+      startVUs: 1,
       stages: [
         { duration: '5m', target: 100 },
-        { duration: '5m', target: 200 },
-        { duration: '10m', target: 1000 },
         { duration: '5m', target: 500 },
+        { duration: '10m', target: 1000 },
+        { duration: '5m', target: 1000 },
         { duration: '5m', target: 300 },
       ],
     },

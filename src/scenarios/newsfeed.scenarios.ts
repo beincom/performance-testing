@@ -7,15 +7,20 @@ export async function newsfeedScenario(): Promise<void> {
   await group('NewsfeedSession', async () => {
     const actor = Actor.init();
 
-    const randomGetNewsfeedTimes = generateRandomNumber(1, 5);
+    const randomGetNewsfeedTimes = generateRandomNumber(1, 10);
 
     let hasNextPage = true;
     let endCursor;
 
+    let reactContentTimes = 0;
+    let markAsReadTimes = 0;
+    let readContentTimes = 0;
+
+    let totalLoadedContent = 0;
+
     for (let i = 0; i < randomGetNewsfeedTimes; i++) {
       if (hasNextPage) {
         const newsfeedResult = await actor.getNewsfeed(endCursor);
-
         check(newsfeedResult, {
           'response get timeline code was api.ok': (res) => res?.code == 'api.ok',
         });
@@ -25,73 +30,59 @@ export async function newsfeedScenario(): Promise<void> {
           endCursor = newsfeedResult.meta.end_cursor;
 
           const contents = newsfeedResult.data.list;
+          totalLoadedContent += contents.length;
 
-          let reactionPostTimes = 0;
-          let reactionArticleTimes = 0;
-          let readArticleTimes = 0;
-
-          for (let i = 0; i < contents.length; i++) {
-            // Simulate scrolling through the post content for 2s ➝ 30s
-            sleep(generateRandomNumber(2, 30));
-
-            const content = contents[i];
+          for (let j = 0; j < contents.length; j++) {
+            const content = contents[j];
             const ownerReactionNames = (content.owner_reactions || []).map(
               (reaction) => reaction.reaction_name
             );
 
-            if (content.type == 'POST') {
-              // Each 3 posts ➝ react
-              if (reactionPostTimes < 3) {
-                const hasReaction = await demoReaction(
-                  actor,
-                  content.id,
-                  content.type,
-                  ownerReactionNames
-                );
-
-                if (hasReaction) {
-                  reactionPostTimes++;
-                }
+            // Select each 8 contents per 100 contents to react
+            if (reactContentTimes < 8 * (Math.floor(totalLoadedContent / 100) + 1)) {
+              const hasReaction = await demoReaction(
+                actor,
+                content.id,
+                content.type,
+                ownerReactionNames
+              );
+              if (hasReaction) {
+                reactContentTimes++;
               }
             }
 
-            if (content.type == 'ARTICLE') {
-              // Each 5 articles ➝ react
-              if (reactionArticleTimes < 5) {
-                const hasReaction = await demoReaction(
-                  actor,
-                  content.id,
-                  content.type,
-                  ownerReactionNames
-                );
-
-                if (hasReaction) {
-                  reactionArticleTimes++;
-                }
-              }
-
-              // Click on details to read about 5 articles
-              if (readArticleTimes < 5) {
-                const hasReadContent = await demoReadContent(actor, content.id, content.type);
-                if (hasReadContent) {
-                  readArticleTimes++;
-                }
-              }
-            }
-
-            // Press mark as read  if available.
             if (content.setting.is_important) {
-              await demoMarkAsRead(actor, content.id);
+              // User scrolls through an important content ➝ Wait for 3 seconds (assuming the user's reading time).
+              sleep(3);
+
+              // Press mark as read  random 5 contents (post, article) per 100 contents
+              if (markAsReadTimes < 5 * (Math.floor(totalLoadedContent / 100) + 1)) {
+                const hasMarkAsRead = await demoMarkAsRead(actor, content.id);
+                if (hasMarkAsRead) {
+                  markAsReadTimes++;
+                }
+              }
             }
 
-            // For every 5 content, save one.
-            if (i % 5 == 0) {
+            // For every 50 content, save one
+            if ((i * 20 + j) % 50 == 0) {
               await demoSaveContent(actor, content.id);
+            }
+
+            // Click on details random 5 contents per 100 contents to read.
+            if (readContentTimes < 5 * (Math.floor(totalLoadedContent / 100) + 1)) {
+              const hasReadContent = await demoReadContent(actor, content.id, content.type);
+              if (hasReadContent) {
+                readContentTimes++;
+              }
             }
           }
         } else {
           hasNextPage = false;
         }
+
+        // Simulate scrolling scroll newsfeed 2 ➝ 30s
+        sleep(generateRandomNumber(2, 30));
       }
     }
   });
@@ -126,7 +117,8 @@ async function demoReaction(
     return false;
   }
 
-  const randomReactionTimes = generateRandomNumber(1, candidateReactionNames.length); // Simulate user can randomly react from 1 ➝ 7 reactions per content
+  // Simulate user can randomly react from 1 ➝ 7 reactions per content
+  const randomReactionTimes = generateRandomNumber(1, candidateReactionNames.length);
 
   for (let i = 0; i < randomReactionTimes; i++) {
     const reactionName = candidateReactionNames[i];
@@ -135,6 +127,7 @@ async function demoReaction(
       [`[reactionResult - ${targetType}] code was api.ok`]: (res) => res?.code == 'api.ok',
     });
 
+    // Demo user can react 1 time per second
     sleep(1);
   }
 
@@ -142,10 +135,18 @@ async function demoReaction(
 }
 
 async function demoMarkAsRead(actor: Actor, contentId: string): Promise<any> {
+  // Randomly decide whether to mark as read or not
+  const needMarkAsRead = generateRandomNumber(0, 1);
+  if (!needMarkAsRead) {
+    return false;
+  }
+
   const markAsReadResult = await actor.markAsRead(contentId);
   check(markAsReadResult, {
     '[markAsReadResult] code was api.ok': (res) => res?.code == 'api.ok',
   });
+
+  return true;
 }
 
 async function demoSaveContent(actor: Actor, contentId: string): Promise<any> {
@@ -170,19 +171,26 @@ async function demoReadContent(actor: Actor, contentId: string, contentType: str
   // Reading time is between 15 seconds to 3 minutes
   sleep(generateRandomNumber(15, 180));
 
-  // React to Other Comments
+  // Scroll down to the comments section to read all 20 latest comments
+  await demoGetCommentList(actor, contentId);
+
+  // Leave a level 1 comment with random characters (1 to 2000 characters)
   await demoComment(actor, contentId);
 
   return true;
 }
 
-async function demoComment(actor: Actor, contentId: string): Promise<any> {
+async function demoGetCommentList(actor: Actor, contentId: string): Promise<any> {
   const randomGetCommentsTimes = generateRandomNumber(1, 5);
 
   let hasNextPage = true;
   let endCursor;
 
+  let reactCommentTimes = 0;
+  let hasReplyComment = false;
+
   for (let i = 0; i < randomGetCommentsTimes; i++) {
+    // Click View previous comments...  to see all previous comments
     if (hasNextPage) {
       const commentListResult = await actor.getComments(contentId, endCursor);
       check(commentListResult, {
@@ -195,16 +203,11 @@ async function demoComment(actor: Actor, contentId: string): Promise<any> {
 
         const comments = commentListResult.data.list;
 
-        let reactionCommentTimes = 0;
-
         for (let i = 0; i < comments.length; i++) {
           const comment = comments[i];
 
-          // Leave 1 reply on each comment
-          await demoReplyComment(actor, contentId, comment.id);
-
           // React to 10 other people's comments
-          if (reactionCommentTimes < 3) {
+          if (reactCommentTimes < 10) {
             const ownerReactionNames = (comment.owner_reactions || []).map(
               (reaction) => reaction.reaction_name
             );
@@ -215,8 +218,12 @@ async function demoComment(actor: Actor, contentId: string): Promise<any> {
               ownerReactionNames
             );
             if (hasReaction) {
-              reactionCommentTimes++;
+              reactCommentTimes++;
             }
+          }
+
+          if (!hasReplyComment) {
+            hasReplyComment = await demoReplyComment(actor, contentId, comment.id);
           }
         }
       } else {
@@ -229,10 +236,30 @@ async function demoComment(actor: Actor, contentId: string): Promise<any> {
   }
 }
 
-async function demoReplyComment(actor: Actor, contentId: string, commentId: string): Promise<any> {
-  const randomContent = generateRandomString(generateRandomNumber(1, 2000));
-  const replyCommentResult = await actor.replyComment(contentId, commentId, randomContent);
+async function demoReplyComment(
+  actor: Actor,
+  contentId: string,
+  commentId: string
+): Promise<boolean> {
+  // Randomly decide whether to reply or not
+  const needReply = generateRandomNumber(0, 1);
+  if (!needReply) {
+    return false;
+  }
+
+  const replyContent = 'This is a reply comment';
+  const replyCommentResult = await actor.replyComment(contentId, commentId, replyContent);
   check(replyCommentResult, {
     '[replyCommentResult] code was api.ok': (res) => res?.code == 'api.ok',
+  });
+
+  return true;
+}
+
+async function demoComment(actor: Actor, contentId: string): Promise<any> {
+  const randomContent = generateRandomString(generateRandomNumber(1, 2000));
+  const commentResult = await actor.comment(contentId, randomContent);
+  check(commentResult, {
+    '[commentResult] code was api.ok': (res) => res?.code == 'api.ok',
   });
 }
