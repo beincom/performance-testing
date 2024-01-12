@@ -9,6 +9,9 @@ export async function newsfeedScenario(): Promise<void> {
 
     const randomGetNewsfeedTimes = generateRandomNumber(1, 10);
 
+    // Randomly decide whether to action to content or just scroll newsfeed
+    const needActionToContent = generateRandomNumber(0, 1);
+
     let hasNextPage = true;
     let endCursor;
 
@@ -22,67 +25,69 @@ export async function newsfeedScenario(): Promise<void> {
       if (hasNextPage) {
         const newsfeedResult = await actor.getNewsfeed(endCursor);
         check(newsfeedResult, {
-          'response get timeline code was api.ok': (res) => res?.code == 'api.ok',
+          'response get newsfeed code was api.ok': (res) => res?.code == 'api.ok',
         });
 
         if (newsfeedResult) {
-          hasNextPage = newsfeedResult.meta.has_next_page;
-          endCursor = newsfeedResult.meta.end_cursor;
+          hasNextPage = newsfeedResult.data.meta.hasNextPage;
+          endCursor = newsfeedResult.data.meta.endCursor;
 
           const contents = newsfeedResult.data.list;
           totalLoadedContent += contents.length;
 
-          for (let j = 0; j < contents.length; j++) {
-            const content = contents[j];
-            const ownerReactionNames = (content.owner_reactions || []).map(
-              (reaction) => reaction.reaction_name
-            );
-
-            // Select each 8 contents per 100 contents to react
-            if (reactContentTimes < 8 * (Math.floor(totalLoadedContent / 100) + 1)) {
-              const hasReaction = await demoReaction(
-                actor,
-                content.id,
-                content.type,
-                ownerReactionNames
+          if (needActionToContent) {
+            for (let j = 0; j < contents.length; j++) {
+              const content = contents[j];
+              const ownerReactionNames = (content.ownerReactions || []).map(
+                (reaction) => reaction.reactionName
               );
-              if (hasReaction) {
-                reactContentTimes++;
+
+              // Select each 8 contents per 100 contents to react
+              if (reactContentTimes < 8 * (Math.floor(totalLoadedContent / 100) + 1)) {
+                const hasReaction = await demoReaction(
+                  actor,
+                  content.id,
+                  content.type,
+                  ownerReactionNames
+                );
+                if (hasReaction) {
+                  reactContentTimes++;
+                }
               }
-            }
 
-            if (content.setting.is_important) {
-              // User scrolls through an important content ➝ Wait for 3 seconds (assuming the user's reading time).
-              sleep(3);
+              if (content.setting.isImportant) {
+                // User scrolls through an important content ➝ Wait for 3 seconds (assuming the user's reading time).
+                sleep(3);
 
-              // Press mark as read  random 5 contents (post, article) per 100 contents
-              if (markAsReadTimes < 5 * (Math.floor(totalLoadedContent / 100) + 1)) {
-                const hasMarkAsRead = await demoMarkAsRead(actor, content.id);
-                if (hasMarkAsRead) {
-                  markAsReadTimes++;
+                // Press mark as read  random 5 contents (post, article) per 100 contents
+                if (markAsReadTimes < 5 * (Math.floor(totalLoadedContent / 100) + 1)) {
+                  const hasMarkAsRead = await demoMarkAsRead(actor, content.id);
+                  if (hasMarkAsRead) {
+                    markAsReadTimes++;
+                  }
+                }
+              }
+
+              // For every 50 content, save one
+              if ((i * 20 + j) % 50 == 0) {
+                await demoSaveContent(actor, content.id);
+              }
+
+              // Click on details random 5 contents per 100 contents to read.
+              if (readContentTimes < 5 * (Math.floor(totalLoadedContent / 100) + 1)) {
+                const hasReadContent = await demoReadContent(actor, content.id, content.type);
+                if (hasReadContent) {
+                  readContentTimes++;
                 }
               }
             }
-
-            // For every 50 content, save one
-            if ((i * 20 + j) % 50 == 0) {
-              await demoSaveContent(actor, content.id);
-            }
-
-            // Click on details random 5 contents per 100 contents to read.
-            if (readContentTimes < 5 * (Math.floor(totalLoadedContent / 100) + 1)) {
-              const hasReadContent = await demoReadContent(actor, content.id, content.type);
-              if (hasReadContent) {
-                readContentTimes++;
-              }
-            }
+          } else {
+            // Simulate scrolling scroll newsfeed 2 ➝ 30s
+            sleep(generateRandomNumber(2, 30));
           }
         } else {
           hasNextPage = false;
         }
-
-        // Simulate scrolling scroll newsfeed 2 ➝ 30s
-        sleep(generateRandomNumber(2, 30));
       }
     }
   });
@@ -95,8 +100,8 @@ async function demoReaction(
   ownerReactionNames: string[]
 ): Promise<boolean> {
   // Randomly decide whether to react or not
-  const needReaction = generateRandomNumber(0, 1);
-  if (!needReaction) {
+  const needReaction = generateRandomNumber(0, 5);
+  if (needReaction !== 1) {
     return false;
   }
 
@@ -126,9 +131,6 @@ async function demoReaction(
     check(reactionResult, {
       [`[reactionResult - ${targetType}] code was api.ok`]: (res) => res?.code == 'api.ok',
     });
-
-    // Demo user can react 1 time per second
-    sleep(1);
   }
 
   return true;
@@ -136,8 +138,8 @@ async function demoReaction(
 
 async function demoMarkAsRead(actor: Actor, contentId: string): Promise<any> {
   // Randomly decide whether to mark as read or not
-  const needMarkAsRead = generateRandomNumber(0, 1);
-  if (!needMarkAsRead) {
+  const needMarkAsRead = generateRandomNumber(0, 5);
+  if (needMarkAsRead !== 1) {
     return false;
   }
 
@@ -158,8 +160,8 @@ async function demoSaveContent(actor: Actor, contentId: string): Promise<any> {
 
 async function demoReadContent(actor: Actor, contentId: string, contentType: string): Promise<any> {
   // Randomly decide whether to read or not
-  const needRead = generateRandomNumber(0, 1);
-  if (!needRead) {
+  const needRead = generateRandomNumber(0, 5);
+  if (needRead !== 1) {
     return false;
   }
 
@@ -188,6 +190,7 @@ async function demoGetCommentList(actor: Actor, contentId: string): Promise<any>
 
   let reactCommentTimes = 0;
   let hasReplyComment = false;
+  let hasActionToComment = false;
 
   for (let i = 0; i < randomGetCommentsTimes; i++) {
     // Click View previous comments...  to see all previous comments
@@ -198,18 +201,18 @@ async function demoGetCommentList(actor: Actor, contentId: string): Promise<any>
       });
 
       if (commentListResult) {
-        hasNextPage = commentListResult.meta.has_next_page;
-        endCursor = commentListResult.meta.end_cursor;
+        hasNextPage = commentListResult.meta.hasNextPage;
+        endCursor = commentListResult.meta.endCursor;
 
         const comments = commentListResult.data.list;
 
-        for (let i = 0; i < comments.length; i++) {
-          const comment = comments[i];
+        for (let j = 0; j < comments.length; j++) {
+          const comment = comments[j];
 
           // React to 10 other people's comments
           if (reactCommentTimes < 10) {
-            const ownerReactionNames = (comment.owner_reactions || []).map(
-              (reaction) => reaction.reaction_name
+            const ownerReactionNames = (comment.ownerReactions || []).map(
+              (reaction) => reaction.reactionName
             );
             const hasReaction = await demoReaction(
               actor,
@@ -219,6 +222,7 @@ async function demoGetCommentList(actor: Actor, contentId: string): Promise<any>
             );
             if (hasReaction) {
               reactCommentTimes++;
+              hasActionToComment = true;
             }
           }
 
@@ -232,7 +236,9 @@ async function demoGetCommentList(actor: Actor, contentId: string): Promise<any>
     }
 
     // Simulate scrolling through the comment list for 2s ➝ 30s
-    sleep(generateRandomNumber(2, 30));
+    if (!hasActionToComment) {
+      sleep(generateRandomNumber(2, 30));
+    }
   }
 }
 
@@ -242,8 +248,8 @@ async function demoReplyComment(
   commentId: string
 ): Promise<boolean> {
   // Randomly decide whether to reply or not
-  const needReply = generateRandomNumber(0, 1);
-  if (!needReply) {
+  const needReply = generateRandomNumber(0, 5);
+  if (needReply !== 1) {
     return false;
   }
 
