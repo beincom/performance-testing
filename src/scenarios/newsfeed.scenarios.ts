@@ -9,9 +9,6 @@ export async function newsfeedScenario(): Promise<void> {
 
     const randomGetNewsfeedTimes = generateRandomNumber(1, 10);
 
-    // Randomly decide whether to action to content or just scroll newsfeed
-    const needActionToContent = generateRandomNumber(0, 1);
-
     let hasNextPage = true;
     let endCursor;
 
@@ -35,6 +32,9 @@ export async function newsfeedScenario(): Promise<void> {
           const contents = newsfeedResult.data.list;
           totalLoadedContent += contents.length;
 
+          // Randomly decide whether to action to content or just scroll newsfeed
+          const needActionToContent = generateRandomNumber(0, 1);
+
           if (needActionToContent) {
             for (let j = 0; j < contents.length; j++) {
               const content = contents[j];
@@ -43,7 +43,7 @@ export async function newsfeedScenario(): Promise<void> {
               );
 
               // Select each 8 contents per 100 contents to react
-              if (reactContentTimes < 8 * (Math.floor(totalLoadedContent / 100) + 1)) {
+              if (reactContentTimes / totalLoadedContent < 0.08) {
                 const hasReaction = await demoReaction(
                   actor,
                   content.id,
@@ -60,7 +60,7 @@ export async function newsfeedScenario(): Promise<void> {
                 sleep(3);
 
                 // Press mark as read  random 5 contents (post, article) per 100 contents
-                if (markAsReadTimes < 5 * (Math.floor(totalLoadedContent / 100) + 1)) {
+                if (markAsReadTimes / totalLoadedContent < 0.05) {
                   const hasMarkAsRead = await demoMarkAsRead(actor, content.id);
                   if (hasMarkAsRead) {
                     markAsReadTimes++;
@@ -74,7 +74,7 @@ export async function newsfeedScenario(): Promise<void> {
               }
 
               // Click on details random 5 contents per 100 contents to read.
-              if (readContentTimes < 5 * (Math.floor(totalLoadedContent / 100) + 1)) {
+              if (readContentTimes / totalLoadedContent < 0.05) {
                 const hasReadContent = await demoReadContent(actor, content.id, content.type);
                 if (hasReadContent) {
                   readContentTimes++;
@@ -190,7 +190,6 @@ async function demoGetCommentList(actor: Actor, contentId: string): Promise<any>
 
   let reactCommentTimes = 0;
   let hasReplyComment = false;
-  let hasActionToComment = false;
 
   for (let i = 0; i < randomGetCommentsTimes; i++) {
     // Click View previous comments...  to see all previous comments
@@ -201,43 +200,44 @@ async function demoGetCommentList(actor: Actor, contentId: string): Promise<any>
       });
 
       if (commentListResult) {
-        hasNextPage = commentListResult.meta.hasNextPage;
-        endCursor = commentListResult.meta.endCursor;
+        hasNextPage = commentListResult.data.meta.hasNextPage;
+        endCursor = commentListResult.data.meta.endCursor;
 
         const comments = commentListResult.data.list;
 
-        for (let j = 0; j < comments.length; j++) {
-          const comment = comments[j];
+        // Randomly decide whether to action to comment or just scroll comment list
+        const needActionToComment = generateRandomNumber(0, 1);
+        if (needActionToComment) {
+          for (let j = 0; j < comments.length; j++) {
+            const comment = comments[j];
 
-          // React to 10 other people's comments
-          if (reactCommentTimes < 10) {
-            const ownerReactionNames = (comment.ownerReactions || []).map(
-              (reaction) => reaction.reactionName
-            );
-            const hasReaction = await demoReaction(
-              actor,
-              comment.id,
-              'COMMENT',
-              ownerReactionNames
-            );
-            if (hasReaction) {
-              reactCommentTimes++;
-              hasActionToComment = true;
+            // React to 10 other people's comments
+            if (reactCommentTimes < 10) {
+              const ownerReactionNames = (comment.ownerReactions || []).map(
+                (reaction) => reaction.reactionName
+              );
+              const hasReaction = await demoReaction(
+                actor,
+                comment.id,
+                'COMMENT',
+                ownerReactionNames
+              );
+              if (hasReaction) {
+                reactCommentTimes++;
+              }
+            }
+
+            if (!hasReplyComment) {
+              hasReplyComment = await demoReplyComment(actor, contentId, comment.id);
             }
           }
-
-          if (!hasReplyComment) {
-            hasReplyComment = await demoReplyComment(actor, contentId, comment.id);
-          }
+        } else {
+          // Simulate scrolling through the comment list for 2s ➝ 20s
+          sleep(generateRandomNumber(2, 20));
         }
       } else {
         hasNextPage = false;
       }
-    }
-
-    // Simulate scrolling through the comment list for 2s ➝ 30s
-    if (!hasActionToComment) {
-      sleep(generateRandomNumber(2, 30));
     }
   }
 }
