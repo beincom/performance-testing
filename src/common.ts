@@ -11,6 +11,24 @@ export const COMMON_CONFIG = {
 const TEST_ENV = 'develop';
 
 const SERVICE_ENV = {
+  INTERNAL: {
+    GROUP: {
+      HOST: 'https://api.beincom.tech/v1/group',
+      LATEST_VER: '1.1.0',
+    },
+    USER: {
+      HOST: 'https://api.beincom.tech/v1/user',
+      LATEST_VER: '1.0.0',
+    },
+    NOTI: {
+      HOST: 'https://api.beincom.tech/v1/notification',
+      LATEST_VER: '1.1.0',
+    },
+    CONTENT: {
+      HOST: 'https://api.beincom.tech/v1/content',
+      LATEST_VER: '1.13.0',
+    },
+  },
   DEVELOP: {
     GROUP: {
       HOST: 'https://api.beincom.io/v1/group',
@@ -49,6 +67,6 @@ const SERVICE_ENV = {
   },
 };
 
-export const SERVICE = TEST_ENV === 'develop' ? SERVICE_ENV.DEVELOP : SERVICE_ENV.STAGING;
+export const SERVICE = SERVICE_ENV.INTERNAL;
 
 export const TEST_PASSWORD = CONFIGS.DEFAULT_PASSWORD;

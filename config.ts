@@ -1,13 +1,13 @@
 // will be overwritten by user input from prompt in
 // LINK ./main.script.ts#mainScript
 export const CONFIGS = {
-  API_ENDPOINT: 'https://api.beincom.io/v1',
-  COGNITO_USER_POOL: 'ap-southeast-1_MGxohyEmC',
-  COGNITO_CLIENT_ID: 'j71t9dm5kgn54ee8hq9559i67',
+  API_ENDPOINT: 'https://api.beincom.tech/v1',
+  COGNITO_USER_POOL: 'ap-southeast-1_bd4X4H2K6',
+  COGNITO_CLIENT_ID: '3nvmre84me2pgtjsapt7jpu9le',
 
   SYS_ADMIN_USER_NAME: 'betestsystemadmin',
 
-  USERNAME_PREFIX: 'betestuser',
+  USERNAME_PREFIX: 'qc1user',
   FULL_NAME_PREFIX: 'BE Test User',
   EMAIL_DOMAIN: 'be.in',
   DEFAULT_PASSWORD: '1$orMore',
