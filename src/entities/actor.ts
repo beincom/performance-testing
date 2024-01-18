@@ -11,8 +11,8 @@ export class Actor {
     this.username = data.username;
   }
 
-  public static init(): Actor {
-    const randomUserIndex = rand(CONFIGS.NUMBER_OF_USERS);
+  public static init(index: number): Actor {
+    const randomUserIndex = index || rand(CONFIGS.NUMBER_OF_USERS);
     const username = generateUserNameSeed(randomUserIndex);
     const actor = new Actor({ username });
 

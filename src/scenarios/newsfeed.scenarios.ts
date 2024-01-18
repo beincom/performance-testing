@@ -4,8 +4,10 @@ import { Actor } from '../entities/actor';
 import { generateRandomNumber, generateRandomString } from '../utils/utils';
 
 export async function newsfeedScenario(): Promise<void> {
+  const vuID = __VU; // Get current virtual user's id
+
   await group('NewsfeedSession', async () => {
-    const actor = Actor.init();
+    const actor = Actor.init(vuID);
 
     const randomGetNewsfeedTimes = generateRandomNumber(1, 10);
 
@@ -263,7 +265,7 @@ async function demoReplyComment(
 }
 
 async function demoComment(actor: Actor, contentId: string): Promise<any> {
-  const randomContent = generateRandomString(generateRandomNumber(1, 2000));
+  const randomContent = generateRandomString(generateRandomNumber(10, 2000));
   const commentResult = await actor.comment(contentId, randomContent);
   check(commentResult, {
     '[commentResult] code was api.ok': (res) => res?.code == 'api.ok',

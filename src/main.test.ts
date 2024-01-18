@@ -17,7 +17,7 @@ export const options: Options = {
         { duration: '5m', target: 500 },
         { duration: '10m', target: 1000 },
         { duration: '5m', target: 1000 },
-        { duration: '5m', target: 300 },
+        { duration: '15m', target: 800 },
       ],
     },
     // newsfeed: {
