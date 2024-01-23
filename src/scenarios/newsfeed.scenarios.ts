@@ -45,7 +45,7 @@ export async function newsfeedScenario(): Promise<void> {
               );
 
               // Select each 8 contents per 100 contents to react
-              if (reactContentTimes / totalLoadedContent < 0.08) {
+              if (content.type !== 'SERIES' && reactContentTimes / totalLoadedContent < 0.08) {
                 const hasReaction = await demoReaction(
                   actor,
                   content.id,
