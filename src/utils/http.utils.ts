@@ -160,7 +160,7 @@ async function sendHttpRequest(request: Function, data: ApiData): Promise<any> {
   });
 
   httpagg.checkRequest(res, status, {
-    fileName: 'dashboard/httpagg/request.json',
+    fileName: 'dashboard/httpagg-request.json',
     aggregateLevel: 'onError',
   });
 

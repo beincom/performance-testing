@@ -98,7 +98,7 @@ export async function newsfeedScenario(): Promise<void> {
 }
 
 export function teardown(data) {
-  httpagg.generateRaport('dashboard/httpagg/request.json', 'dashboard/httpagg/report.html');
+  httpagg.generateRaport('dashboard/httpagg-request.json', 'dashboard/httpagg-report.html');
 }
 
 async function demoReaction(

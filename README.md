@@ -8,7 +8,7 @@
 
 BIC E2E and Performance test.
 
-## Running the Tests using Makefile
+## Installation
 
 1. Install dependencies
 
@@ -16,13 +16,23 @@ BIC E2E and Performance test.
 yarn
 ```
 
-2. Build k6 with extensions
+2. Set environment variables
+
+```bash
+$ cp .example.env .env
+
+# open .env and modify the environment variables (if needed)
+```
+
+## Running the Test using Makefile
+
+1. Build k6 with extensions
 
 ```bash
 make build-extension
 ```
 
-3. Run test with parameters
+2. Run test with parameters
 
 ```bash
 make run extensions="web-dashboard,elasticsearch" report="dashboard/report.html"
@@ -33,35 +43,29 @@ Recognized parameters:
 - `extensions`: K6 extensions for output (separate by `,`, options: `web-dashboard`, `elasticsearch`).
 - `report`: File name for exporting the report (used if web-dashboard extension is included).
 
-If using `elasticsearch`
-- You need copy `.example.env` to `.env` and replace value.
-- Metrics are stored in the index `k6-metrics`, which is automatically created by the [xk6-output-elasticsearch](https://github.com/elastic/xk6-output-elasticsearch) extension.
+If using `elasticsearch` metrics are stored in the index `k6-metrics`, which is automatically created by the [xk6-output-elasticsearch](https://github.com/elastic/xk6-output-elasticsearch) extension.
 
-## Steps to run the test manual
+## Running the Test manual
 
-1. Install dependencies
-
-```bash
-yarn
-```
-
-2. Build script test
+1. Build script test
 
 ```bash
 yarn build
 ```
 
-3. Build k6 with extensions
+2. Build k6 with extensions
 
+### For Linux
 ```bash
 docker run --rm -it -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" grafana/xk6 build v0.43.1 --with github.com/oleiade/xk6-kv --with github.com/grafana/xk6-dashboard@latest --with github.com/Juandavi1/xk6-prompt@0.0.1 --with github.com/gpiechnik2/xk6-httpagg@latest --with github.com/elastic/xk6-output-elasticsearch@latest
 ```
-[comment]: # For MacOS
+
+### For MacOS
 ```bash
 docker run --rm -e GOOS=darwin -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" grafana/xk6 build --with github.com/oleiade/xk6-kv --with github.com/grafana/xk6-dashboard@latest --with github.com/Juandavi1/xk6-prompt@0.0.1 --with github.com/gpiechnik2/xk6-httpagg@latest --with github.com/elastic/xk6-output-elasticsearch@latest
 ```
 
-[comment]: # For Windows
+### For Windows
 ```bash
 docker run --rm -e GOOS=windows -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" xk6-prompt@0.0.1 --with github.com/gpiechnik2/xk6-httpagg@latest --with github.com/elastic/xk6-output-elasticsearch@latest
 ```
@@ -80,6 +84,22 @@ export K6_ELASTICSEARCH_PASSWORD=xxx
 
 ./k6 run --out web-dashboard=report=dashboard/report.html --out output-elasticsearch dist/main.test.js
 ```
+
+## Output Results
+
+### [HTTP Aggregation (httpagg)](https://github.com/gpiechnik2/xk6-httpagg)
+
+- By default, the httpagg report is exported to `dashboard/httpagg-report.html`.
+
+### [Web Dashboard](https://github.com/grafana/xk6-dashboard)
+
+- By default, the web-dashboard report is exported to `dashboard/report.html`.
+
+- If the report parameter is provided when running the test, the report is exported to the specified path.
+
+### [Elasticsearch](https://github.com/elastic/xk6-output-elasticsearch)
+
+- Metrics are stored in the index `k6-metrics`, automatically created by the xk6-output-elasticsearch extension.
 
 ## Writing own tests
 
