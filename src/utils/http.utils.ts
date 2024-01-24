@@ -156,7 +156,7 @@ async function sendHttpRequest(request: Function, data: ApiData): Promise<any> {
   const res = request();
 
   const status = check(res, {
-    'response code was 200': (r) => r.status === 200 || r.status === 201,
+    '[summary] code was 200': (r) => r.status === 200 || r.status === 201,
   });
 
   httpagg.checkRequest(res, status, {

@@ -4,3 +4,4 @@ dist
 dashboard
 k6
 .k6.kv
+.env

@@ -8,7 +8,36 @@
 
 BIC E2E and Performance test.
 
-## Steps to run the test
+## Running the Tests using Makefile
+
+1. Install dependencies
+
+```bash
+yarn
+```
+
+2. Build k6 with extensions
+
+```bash
+make build-extension
+```
+
+3. Run test with parameters
+
+```bash
+make run extensions="web-dashboard,elasticsearch" report="dashboard/report.html"
+```
+
+Recognized parameters:
+
+- `extensions`: K6 extensions for output (separate by `,`, options: `web-dashboard`, `elasticsearch`).
+- `report`: File name for exporting the report (used if web-dashboard extension is included).
+
+If using `elasticsearch`
+- You need copy `.example.env` to `.env` and replace value.
+- Metrics are stored in the index `k6-metrics`, which is automatically created by the [xk6-output-elasticsearch](https://github.com/elastic/xk6-output-elasticsearch) extension.
+
+## Steps to run the test manual
 
 1. Install dependencies
 
@@ -29,20 +58,18 @@ docker run --rm -it -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" grafana/xk6 build v0
 ```
 [comment]: # For MacOS
 ```bash
-docker run --rm -e GOOS=darwin -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" \
-  grafana/xk6 build --with github.com/oleiade/xk6-kv --with github.com/grafana/xk6-dashboard@latest --with github.com/Juandavi1/xk6-prompt@0.0.1 --with github.com/gpiechnik2/xk6-httpagg@latest --with github.com/elastic/xk6-output-elasticsearch@latest
+docker run --rm -e GOOS=darwin -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" grafana/xk6 build --with github.com/oleiade/xk6-kv --with github.com/grafana/xk6-dashboard@latest --with github.com/Juandavi1/xk6-prompt@0.0.1 --with github.com/gpiechnik2/xk6-httpagg@latest --with github.com/elastic/xk6-output-elasticsearch@latest
 ```
 
 [comment]: # For Windows
 ```bash
-docker run --rm -e GOOS=windows -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" `
-  grafana/xk6 build --output k6.exe ` --with github.com/oleiade/xk6-kv --with github.com/grafana/xk6-dashboard@latest --with github.com/Juandavi1/xk6-prompt@0.0.1 --with github.com/gpiechnik2/xk6-httpagg@latest --with github.com/elastic/xk6-output-elasticsearch@latest
+docker run --rm -e GOOS=windows -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" xk6-prompt@0.0.1 --with github.com/gpiechnik2/xk6-httpagg@latest --with github.com/elastic/xk6-output-elasticsearch@latest
 ```
 
 3. Run the test
 
 ```bash
-./k6 run --out dashboard=report=dashboard/test-report.html dist/main.test.js
+./k6 run --out web-dashboard=report=dashboard/report.html dist/main.test.js
 ```
 
 Run with output elasticsearch. The metrics are stored in the index `k6-metrics` which will be automatically created by extension [xk6-output-elasticsearch](https://github.com/elastic/xk6-output-elasticsearch)
@@ -51,7 +78,7 @@ export K6_ELASTICSEARCH_URL=xxx
 export K6_ELASTICSEARCH_USER=xxx
 export K6_ELASTICSEARCH_PASSWORD=xxx
 
-./k6 run --out web-dashboard=report=dashboard/newsfeed/2024-01-24:11-15.html dist/main.test.js --out output-elasticsearch
+./k6 run --out web-dashboard=report=dashboard/report.html --out output-elasticsearch dist/main.test.js
 ```
 
 ## Writing own tests

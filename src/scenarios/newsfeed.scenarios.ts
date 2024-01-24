@@ -26,7 +26,7 @@ export async function newsfeedScenario(): Promise<void> {
       if (hasNextPage) {
         const newsfeedResult = await actor.getNewsfeed(endCursor);
         check(newsfeedResult, {
-          'response get newsfeed code was api.ok': (res) => res?.code == 'api.ok',
+          '[newsfeedResult] code was api.ok': (res) => res?.code == 'api.ok',
         });
 
         if (newsfeedResult) {
@@ -98,10 +98,7 @@ export async function newsfeedScenario(): Promise<void> {
 }
 
 export function teardown(data) {
-  httpagg.generateRaport(
-    'dashboard/httpagg/request.json',
-    'dashboard/httpagg/2024-01-24:11-15.html'
-  );
+  httpagg.generateRaport('dashboard/httpagg/request.json', 'dashboard/httpagg/report.html');
 }
 
 async function demoReaction(
