@@ -25,24 +25,33 @@ yarn build
 3. Build k6 with extensions
 
 ```bash
-docker run --rm -it -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" grafana/xk6 build v0.43.1 --with github.com/oleiade/xk6-kv --with github.com/grafana/xk6-dashboard@latest --with github.com/Juandavi1/xk6-prompt@0.0.1
+docker run --rm -it -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" grafana/xk6 build v0.43.1 --with github.com/oleiade/xk6-kv --with github.com/grafana/xk6-dashboard@latest --with github.com/Juandavi1/xk6-prompt@0.0.1 --with github.com/gpiechnik2/xk6-httpagg@latest --with github.com/elastic/xk6-output-elasticsearch@latest
 ```
 [comment]: # For MacOS
 ```bash
 docker run --rm -e GOOS=darwin -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" \
-  grafana/xk6 build --with github.com/oleiade/xk6-kv --with github.com/grafana/xk6-dashboard@latest --with github.com/Juandavi1/xk6-prompt@0.0.1
+  grafana/xk6 build --with github.com/oleiade/xk6-kv --with github.com/grafana/xk6-dashboard@latest --with github.com/Juandavi1/xk6-prompt@0.0.1 --with github.com/gpiechnik2/xk6-httpagg@latest --with github.com/elastic/xk6-output-elasticsearch@latest
 ```
 
 [comment]: # For Windows
 ```bash
 docker run --rm -e GOOS=windows -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" `
-  grafana/xk6 build --output k6.exe ` --with github.com/oleiade/xk6-kv --with github.com/grafana/xk6-dashboard@latest --with github.com/Juandavi1/xk6-prompt@0.0.1
+  grafana/xk6 build --output k6.exe ` --with github.com/oleiade/xk6-kv --with github.com/grafana/xk6-dashboard@latest --with github.com/Juandavi1/xk6-prompt@0.0.1 --with github.com/gpiechnik2/xk6-httpagg@latest --with github.com/elastic/xk6-output-elasticsearch@latest
 ```
 
 3. Run the test
 
 ```bash
 ./k6 run --out dashboard=report=dashboard/test-report.html dist/main.test.js
+```
+
+Run with output elasticsearch. The metrics are stored in the index `k6-metrics` which will be automatically created by extension [xk6-output-elasticsearch](https://github.com/elastic/xk6-output-elasticsearch)
+```bash
+export K6_ELASTICSEARCH_URL=xxx
+export K6_ELASTICSEARCH_USER=xxx
+export K6_ELASTICSEARCH_PASSWORD=xxx
+
+./k6 run --out web-dashboard=report=dashboard/newsfeed/2024-01-24:11-15.html dist/main.test.js --out output-elasticsearch
 ```
 
 ## Writing own tests

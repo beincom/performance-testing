@@ -22,6 +22,18 @@ export const options: Options = {
     },
     // newsfeed: {
     //   exec: 'newsfeedScenario',
+    //   executor: 'ramping-vus',
+    //   startVUs: 1,
+    //   stages: [
+    //     { duration: '2m', target: 10 },
+    //     { duration: '3m', target: 50 },
+    //     { duration: '5m', target: 100 },
+    //     { duration: '2m', target: 100 },
+    //     { duration: '3m', target: 80 },
+    //   ],
+    // },
+    // newsfeed: {
+    //   exec: 'newsfeedScenario',
     //   executor: 'per-vu-iterations',
     //   vus: 1,
     //   iterations: 1,

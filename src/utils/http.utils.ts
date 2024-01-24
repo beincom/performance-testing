@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+import { check } from 'k6';
 import http from 'k6/http';
 import { Counter } from 'k6/metrics'; // @ts-ignore
+import httpagg from 'k6/x/httpagg'; // @ts-ignore
 import { openKv } from 'k6/x/kv';
 
 import { CONFIGS } from '../../config';
@@ -152,6 +154,15 @@ async function sendHttpRequest(request: Function, data: ApiData): Promise<any> {
   data.token = (await kv.get(data.actorUsername)) ?? (await getToken(data.actorUsername));
 
   const res = request();
+
+  const status = check(res, {
+    'response code was 200': (r) => r.status === 200 || r.status === 201,
+  });
+
+  httpagg.checkRequest(res, status, {
+    fileName: 'dashboard/httpagg/request.json',
+    aggregateLevel: 'onError',
+  });
 
   if (res.error_code) {
     if (res.status === 401) {

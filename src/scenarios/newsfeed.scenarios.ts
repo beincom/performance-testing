@@ -1,4 +1,6 @@
-import { check, group, sleep } from 'k6';
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import { check, group, sleep } from 'k6'; // @ts-ignore
+import httpagg from 'k6/x/httpagg';
 
 import { Actor } from '../entities/actor';
 import { generateRandomNumber, generateRandomString } from '../utils/utils';
@@ -93,6 +95,13 @@ export async function newsfeedScenario(): Promise<void> {
       }
     }
   });
+}
+
+export function teardown(data) {
+  httpagg.generateRaport(
+    'dashboard/httpagg/request.json',
+    'dashboard/httpagg/2024-01-24:11-15.html'
+  );
 }
 
 async function demoReaction(
