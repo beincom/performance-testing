@@ -29,7 +29,7 @@ run:
 	@echo "=====> Running with extensions: $(extensions)"
 	@if echo "$(extensions)" | grep -q "elasticsearch" && echo "$(extensions)" | grep -q "web-dashboard"; then \
 		echo "=====> Running: yarn build"; \
-		yarn build; \
+		yarn build || { echo "Error: Failed to run yarn build"; exit 1; }; \
 		echo "=====> Running: export K6_ELASTICSEARCH_URL=${K6_ELASTICSEARCH_URL}; export K6_ELASTICSEARCH_USER=${K6_ELASTICSEARCH_USER}; export K6_ELASTICSEARCH_PASSWORD=${K6_ELASTICSEARCH_PASSWORD}; ./k6 run --out web-dashboard=report=\"${report}\" --out output-elasticsearch dist/main.test.js"; \
 		export K6_ELASTICSEARCH_URL=${K6_ELASTICSEARCH_URL}; \
 		export K6_ELASTICSEARCH_USER=${K6_ELASTICSEARCH_USER}; \
@@ -38,7 +38,7 @@ run:
 	fi
 	@if echo "$(extensions)" | grep -q "elasticsearch"; then \
 		echo "=====> Running: yarn build"; \
-		yarn build; \
+		yarn build || { echo "Error: Failed to run yarn build"; exit 1; }; \
 		echo "=====> Running: export K6_ELASTICSEARCH_URL=${K6_ELASTICSEARCH_URL}; export K6_ELASTICSEARCH_USER=${K6_ELASTICSEARCH_USER}; export K6_ELASTICSEARCH_PASSWORD=${K6_ELASTICSEARCH_PASSWORD}; ./k6 run --out output-elasticsearch dist/main.test.js"; \
 		export K6_ELASTICSEARCH_URL=${K6_ELASTICSEARCH_URL}; \
 		export K6_ELASTICSEARCH_USER=${K6_ELASTICSEARCH_USER}; \
@@ -46,7 +46,7 @@ run:
 		./k6 run --out output-elasticsearch dist/main.test.js; \
 	elif echo "$(extensions)" | grep -q "web-dashboard"; then \
 		echo "=====> Running: yarn build"; \
-		yarn build; \
+		yarn build || { echo "Error: Failed to run yarn build"; exit 1; }; \
 		echo "=====> Running: ./k6 run --out web-dashboard=report=\"${report}\" dist/main.test.js"; \
 		./k6 run --out web-dashboard=report="${report}" dist/main.test.js; \
 	fi
