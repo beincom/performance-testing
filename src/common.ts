@@ -26,7 +26,7 @@ const SERVICE_ENV = {
     },
     CONTENT: {
       HOST: 'https://api.beincom.tech/v1/content',
-      LATEST_VER: '1.14.0',
+      LATEST_VER: '1.13.0',
     },
   },
   DEVELOP: {

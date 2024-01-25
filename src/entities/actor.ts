@@ -79,7 +79,7 @@ export class Actor {
   }
 
   public async getComments(contentId: string, after?: string): Promise<any> {
-    let url = `${SERVICE.CONTENT.HOST}/comments?postId=${contentId}&limit=20`;
+    let url = `${SERVICE.CONTENT.HOST}/comments?post_id=${contentId}&limit=20`;
     if (after) {
       url += `&after=${after}`;
     }
@@ -110,9 +110,9 @@ export class Actor {
       url,
       headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
       body: {
-        targetId,
+        target_id: targetId,
         target: targetType,
-        reactionName,
+        reaction_name: reactionName,
       },
     });
   }
@@ -144,7 +144,7 @@ export class Actor {
       actorUsername: this.username,
       url,
       headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
-      body: { content, postId: contentId },
+      body: { content, post_id: contentId },
     });
   }
 
@@ -155,7 +155,7 @@ export class Actor {
       actorUsername: this.username,
       url,
       headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
-      body: { content, postId: contentId },
+      body: { content, post_id: contentId },
     });
   }
 }

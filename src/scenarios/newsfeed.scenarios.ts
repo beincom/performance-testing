@@ -34,8 +34,8 @@ export async function newsfeedScenario(): Promise<void> {
         });
 
         if (newsfeedResult) {
-          hasNextPage = newsfeedResult.data.meta.hasNextPage;
-          endCursor = newsfeedResult.data.meta.endCursor;
+          hasNextPage = newsfeedResult.data.meta.has_next_page;
+          endCursor = newsfeedResult.data.meta.end_cursor;
 
           const contents = newsfeedResult.data.list;
           totalLoadedContent += contents.length;
@@ -46,8 +46,8 @@ export async function newsfeedScenario(): Promise<void> {
           if (needActionToContent) {
             for (let j = 0; j < contents.length; j++) {
               const content = contents[j];
-              const ownerReactionNames = (content.ownerReactions || []).map(
-                (reaction) => reaction.reactionName
+              const ownerReactionNames = (content.owner_reactions || []).map(
+                (reaction) => reaction.reaction_name
               );
 
               // Select each 8 contents per 100 contents to react
@@ -63,7 +63,7 @@ export async function newsfeedScenario(): Promise<void> {
                 }
               }
 
-              if (content.setting.isImportant) {
+              if (content.setting.is_important) {
                 // User scrolls through an important content ➝ Wait for 3 seconds (assuming the user's reading time).
                 sleep(3);
 
@@ -263,8 +263,8 @@ async function demoGetCommentList(actor: Actor, contentId: string): Promise<any>
       });
 
       if (commentListResult) {
-        hasNextPage = commentListResult.data.meta.hasNextPage;
-        endCursor = commentListResult.data.meta.endCursor;
+        hasNextPage = commentListResult.data.meta.has_next_page;
+        endCursor = commentListResult.data.meta.end_cursor;
 
         const comments = commentListResult.data.list;
 
@@ -276,8 +276,8 @@ async function demoGetCommentList(actor: Actor, contentId: string): Promise<any>
 
             // React to 10 other people's comments
             if (reactCommentTimes < 10) {
-              const ownerReactionNames = (comment.ownerReactions || []).map(
-                (reaction) => reaction.reactionName
+              const ownerReactionNames = (comment.owner_reactions || []).map(
+                (reaction) => reaction.reaction_name
               );
               const hasReaction = await demoReaction(
                 actor,
