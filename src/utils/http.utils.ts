@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { check } from 'k6';
 import http from 'k6/http';
 import { Counter } from 'k6/metrics'; // @ts-ignore
-import httpagg from 'k6/x/httpagg'; // @ts-ignore
 import { openKv } from 'k6/x/kv';
 
 import { CONFIGS } from '../../config';
@@ -155,15 +153,6 @@ async function sendHttpRequest(request: Function, data: ApiData): Promise<any> {
 
   const res = request();
 
-  const status = check(res, {
-    '[summary] code was 200': (r) => r.status === 200 || r.status === 201,
-  });
-
-  httpagg.checkRequest(res, status, {
-    fileName: 'dashboard/httpagg-request.json',
-    aggregateLevel: 'onError',
-  });
-
   if (res.error_code) {
     if (res.status === 401) {
       data.token = await getToken(data.actorUsername);
@@ -188,7 +177,7 @@ async function sendHttpRequest(request: Function, data: ApiData): Promise<any> {
       ServerDownCounter.add(1);
     }
 
-    return null;
+    return res;
   }
 
   return res.json();

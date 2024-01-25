@@ -25,8 +25,12 @@ export async function newsfeedScenario(): Promise<void> {
     for (let i = 0; i < randomGetNewsfeedTimes; i++) {
       if (hasNextPage) {
         const newsfeedResult = await actor.getNewsfeed(endCursor);
-        check(newsfeedResult, {
+        const status = check(newsfeedResult, {
           '[newsfeedResult] code was api.ok': (res) => res?.code == 'api.ok',
+        });
+        httpagg.checkRequest(newsfeedResult, status, {
+          fileName: 'dashboard/httpagg-newsfeedResult.json',
+          aggregateLevel: 'onError',
         });
 
         if (newsfeedResult) {
@@ -98,7 +102,38 @@ export async function newsfeedScenario(): Promise<void> {
 }
 
 export function teardown(data) {
-  httpagg.generateRaport('dashboard/httpagg-request.json', 'dashboard/httpagg-report.html');
+  httpagg.generateRaport(
+    'dashboard/httpagg-newsfeedResult.json',
+    'dashboard/httpagg-newsfeedResult-report.html'
+  );
+  httpagg.generateRaport(
+    'dashboard/httpagg-reactionResult.json',
+    'dashboard/httpagg-reactionResult-report.html'
+  );
+  httpagg.generateRaport(
+    'dashboard/httpagg-markAsReadResult.json',
+    'dashboard/httpagg-markAsReadResult-report.html'
+  );
+  httpagg.generateRaport(
+    'dashboard/httpagg-saveContentResult.json',
+    'dashboard/httpagg-saveContentResult-report.html'
+  );
+  httpagg.generateRaport(
+    'dashboard/httpagg-contentDetailResult.json',
+    'dashboard/httpagg-contentDetailResult-report.html'
+  );
+  httpagg.generateRaport(
+    'dashboard/httpagg-commentListResult.json',
+    'dashboard/httpagg-commentListResult-report.html'
+  );
+  httpagg.generateRaport(
+    'dashboard/httpagg-replyCommentResult.json',
+    'dashboard/httpagg-replyCommentResult-report.html'
+  );
+  httpagg.generateRaport(
+    'dashboard/httpagg-commentResult.json',
+    'dashboard/httpagg-commentResult-report.html'
+  );
 }
 
 async function demoReaction(
@@ -136,8 +171,12 @@ async function demoReaction(
   for (let i = 0; i < randomReactionTimes; i++) {
     const reactionName = candidateReactionNames[i];
     const reactionResult = await actor.reaction(targetId, targetType, reactionName);
-    check(reactionResult, {
+    const status = check(reactionResult, {
       [`[reactionResult - ${targetType}] code was api.ok`]: (res) => res?.code == 'api.ok',
+    });
+    httpagg.checkRequest(reactionResult, status, {
+      fileName: 'dashboard/httpagg-reactionResult.json',
+      aggregateLevel: 'onError',
     });
   }
 
@@ -152,8 +191,12 @@ async function demoMarkAsRead(actor: Actor, contentId: string): Promise<any> {
   }
 
   const markAsReadResult = await actor.markAsRead(contentId);
-  check(markAsReadResult, {
+  const status = check(markAsReadResult, {
     '[markAsReadResult] code was api.ok': (res) => res?.code == 'api.ok',
+  });
+  httpagg.checkRequest(markAsReadResult, status, {
+    fileName: 'dashboard/httpagg-markAsReadResult.json',
+    aggregateLevel: 'onError',
   });
 
   return true;
@@ -161,8 +204,12 @@ async function demoMarkAsRead(actor: Actor, contentId: string): Promise<any> {
 
 async function demoSaveContent(actor: Actor, contentId: string): Promise<any> {
   const saveContentResult = await actor.saveContent(contentId);
-  check(saveContentResult, {
+  const status = check(saveContentResult, {
     '[markAsReadResult] code was api.ok': (res) => res?.code == 'api.ok',
+  });
+  httpagg.checkRequest(saveContentResult, status, {
+    fileName: 'dashboard/httpagg-saveContentResult.json',
+    aggregateLevel: 'onError',
   });
 }
 
@@ -174,8 +221,12 @@ async function demoReadContent(actor: Actor, contentId: string, contentType: str
   }
 
   const contentDetailResult = await actor.getContentDetail(contentId, contentType);
-  check(contentDetailResult, {
+  const status = check(contentDetailResult, {
     '[contentDetailResult] code was api.ok': (res) => res?.code == 'api.ok',
+  });
+  httpagg.checkRequest(contentDetailResult, status, {
+    fileName: 'dashboard/httpagg-contentDetailResult.json',
+    aggregateLevel: 'onError',
   });
 
   // Reading time is between 15 seconds to 3 minutes
@@ -203,8 +254,12 @@ async function demoGetCommentList(actor: Actor, contentId: string): Promise<any>
     // Click View previous comments...  to see all previous comments
     if (hasNextPage) {
       const commentListResult = await actor.getComments(contentId, endCursor);
-      check(commentListResult, {
+      const status = check(commentListResult, {
         '[commentListResult] code was api.ok': (res) => res?.code == 'api.ok',
+      });
+      httpagg.checkRequest(commentListResult, status, {
+        fileName: 'dashboard/httpagg-commentListResult.json',
+        aggregateLevel: 'onError',
       });
 
       if (commentListResult) {
@@ -263,8 +318,12 @@ async function demoReplyComment(
 
   const replyContent = 'This is a reply comment';
   const replyCommentResult = await actor.replyComment(contentId, commentId, replyContent);
-  check(replyCommentResult, {
+  const status = check(replyCommentResult, {
     '[replyCommentResult] code was api.ok': (res) => res?.code == 'api.ok',
+  });
+  httpagg.checkRequest(replyCommentResult, status, {
+    fileName: 'dashboard/httpagg-replyCommentResult.json',
+    aggregateLevel: 'onError',
   });
 
   return true;
@@ -273,7 +332,11 @@ async function demoReplyComment(
 async function demoComment(actor: Actor, contentId: string): Promise<any> {
   const randomContent = generateRandomString(generateRandomNumber(10, 2000));
   const commentResult = await actor.comment(contentId, randomContent);
-  check(commentResult, {
+  const status = check(commentResult, {
     '[commentResult] code was api.ok': (res) => res?.code == 'api.ok',
+  });
+  httpagg.checkRequest(commentResult, status, {
+    fileName: 'dashboard/httpagg-commentResult.json',
+    aggregateLevel: 'onError',
   });
 }
