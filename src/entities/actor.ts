@@ -78,6 +78,16 @@ export class Actor {
     }
   }
 
+  public async getMenuSettings(contentId: string): Promise<any> {
+    return GET({
+      actorUsername: this.username,
+      url: `${SERVICE.CONTENT.HOST}/contents/${contentId}/menu-settings`,
+      headers: {
+        [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER,
+      },
+    });
+  }
+
   public async getComments(contentId: string, after?: string): Promise<any> {
     let url = `${SERVICE.CONTENT.HOST}/comments?postId=${contentId}&limit=20`;
     if (after) {
