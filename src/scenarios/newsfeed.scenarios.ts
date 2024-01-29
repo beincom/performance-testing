@@ -11,7 +11,7 @@ export async function newsfeedScenario(): Promise<void> {
   await group('NewsfeedSession', async () => {
     const actor = Actor.init(vuID);
 
-    const randomGetNewsfeedTimes = generateRandomNumber(1, 10);
+    const randomGetNewsfeedTimes = generateRandomNumber(5, 25);
 
     let hasNextPage = true;
     let endCursor;
@@ -33,7 +33,7 @@ export async function newsfeedScenario(): Promise<void> {
           aggregateLevel: 'onError',
         });
 
-        if (newsfeedResult) {
+        if (newsfeedResult?.data) {
           hasNextPage = newsfeedResult.data.meta.has_next_page;
           endCursor = newsfeedResult.data.meta.end_cursor;
 
@@ -41,9 +41,9 @@ export async function newsfeedScenario(): Promise<void> {
           totalLoadedContent += contents.length;
 
           // Randomly decide whether to action to content or just scroll newsfeed
-          const needActionToContent = generateRandomNumber(0, 1);
+          const needActionToContent = generateRandomNumber(0, 3);
 
-          if (needActionToContent) {
+          if (needActionToContent === 1) {
             for (let j = 0; j < contents.length; j++) {
               const content = contents[j];
               const ownerReactionNames = (content.owner_reactions || []).map(
@@ -68,7 +68,7 @@ export async function newsfeedScenario(): Promise<void> {
                 sleep(3);
 
                 // Press mark as read  random 5 contents (post, article) per 100 contents
-                if (markAsReadTimes / totalLoadedContent < 0.05) {
+                if (!content.markedReadPost && markAsReadTimes / totalLoadedContent < 0.05) {
                   const hasMarkAsRead = await demoMarkAsRead(actor, content.id);
                   if (hasMarkAsRead) {
                     markAsReadTimes++;
@@ -134,6 +134,10 @@ export function teardown(data) {
     'dashboard/httpagg-commentResult.json',
     'dashboard/httpagg-commentResult-report.html'
   );
+  httpagg.generateRaport(
+    'dashboard/httpagg-menuSettingsResult.json',
+    'dashboard/httpagg-menuSettingsResult-report.html'
+  );
 }
 
 async function demoReaction(
@@ -169,6 +173,9 @@ async function demoReaction(
   const randomReactionTimes = generateRandomNumber(1, candidateReactionNames.length);
 
   for (let i = 0; i < randomReactionTimes; i++) {
+    // Simulate user need 1 to 4 seconds to choose a emoji
+    sleep(generateRandomNumber(1, 4));
+
     const reactionName = candidateReactionNames[i];
     const reactionResult = await actor.reaction(targetId, targetType, reactionName);
     const status = check(reactionResult, {
@@ -203,14 +210,27 @@ async function demoMarkAsRead(actor: Actor, contentId: string): Promise<any> {
 }
 
 async function demoSaveContent(actor: Actor, contentId: string): Promise<any> {
-  const saveContentResult = await actor.saveContent(contentId);
-  const status = check(saveContentResult, {
-    '[markAsReadResult] code was api.ok': (res) => res?.code == 'api.ok',
+  const menuSettingsResult = await actor.getMenuSettings(contentId);
+  const menuSettingsStatus = check(menuSettingsResult, {
+    '[menuSettingsResult] code was api.ok': (res) => res?.code == 'api.ok',
   });
-  httpagg.checkRequest(saveContentResult, status, {
-    fileName: 'dashboard/httpagg-saveContentResult.json',
+  httpagg.checkRequest(menuSettingsResult, menuSettingsStatus, {
+    fileName: 'dashboard/httpagg-menuSettingsResult.json',
     aggregateLevel: 'onError',
   });
+
+  if (menuSettingsResult?.data) {
+    if (!menuSettingsResult.data.is_save) {
+      const saveContentResult = await actor.saveContent(contentId);
+      const status = check(saveContentResult, {
+        '[markAsReadResult] code was api.ok': (res) => res?.code == 'api.ok',
+      });
+      httpagg.checkRequest(saveContentResult, status, {
+        fileName: 'dashboard/httpagg-saveContentResult.json',
+        aggregateLevel: 'onError',
+      });
+    }
+  }
 }
 
 async function demoReadContent(actor: Actor, contentId: string, contentType: string): Promise<any> {
@@ -262,7 +282,7 @@ async function demoGetCommentList(actor: Actor, contentId: string): Promise<any>
         aggregateLevel: 'onError',
       });
 
-      if (commentListResult) {
+      if (commentListResult?.data) {
         hasNextPage = commentListResult.data.meta.has_next_page;
         endCursor = commentListResult.data.meta.end_cursor;
 
@@ -274,8 +294,8 @@ async function demoGetCommentList(actor: Actor, contentId: string): Promise<any>
           for (let j = 0; j < comments.length; j++) {
             const comment = comments[j];
 
-            // React to 10 other people's comments
-            if (reactCommentTimes < 10) {
+            // React to 5 other people's comments
+            if (reactCommentTimes < 5) {
               const ownerReactionNames = (comment.owner_reactions || []).map(
                 (reaction) => reaction.reaction_name
               );
@@ -316,6 +336,9 @@ async function demoReplyComment(
     return false;
   }
 
+  // Simulate user need 3 to 10 seconds to type a reply comment
+  sleep(generateRandomNumber(3, 10));
+
   const replyContent = 'This is a reply comment';
   const replyCommentResult = await actor.replyComment(contentId, commentId, replyContent);
   const status = check(replyCommentResult, {
@@ -330,6 +353,9 @@ async function demoReplyComment(
 }
 
 async function demoComment(actor: Actor, contentId: string): Promise<any> {
+  // Simulate user need 3 to 10 seconds to type a comment
+  sleep(generateRandomNumber(3, 10));
+
   const randomContent = generateRandomString(generateRandomNumber(10, 2000));
   const commentResult = await actor.comment(contentId, randomContent);
   const status = check(commentResult, {
