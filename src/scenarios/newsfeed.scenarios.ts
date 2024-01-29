@@ -223,7 +223,7 @@ async function demoSaveContent(actor: Actor, contentId: string): Promise<any> {
     if (!menuSettingsResult.data.is_save) {
       const saveContentResult = await actor.saveContent(contentId);
       const status = check(saveContentResult, {
-        '[markAsReadResult] code was api.ok': (res) => res?.code == 'api.ok',
+        '[saveContentResult] code was api.ok': (res) => res?.code == 'api.ok',
       });
       httpagg.checkRequest(saveContentResult, status, {
         fileName: 'dashboard/httpagg-saveContentResult.json',
