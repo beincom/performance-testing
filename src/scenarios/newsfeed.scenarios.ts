@@ -153,13 +153,13 @@ async function demoReaction(
   }
 
   const reactionNames = [
-    'bic_thumbs_up',
-    'bic_sparkling_heart',
-    'bic_hugging_face',
-    'bic_smiling_face_with_heart_eyes',
-    'bic_party_popper',
-    'bic_clapping_hands',
-    'bic_fire',
+    'react_thumbs_up',
+    'react_sparkling_heart',
+    'react_partying_face',
+    'react_grinning_face_with_smiling_eyes',
+    'react_hugging_face',
+    'react_clapping_hands',
+    'react_fire',
   ];
   const candidateReactionNames = reactionNames.filter((reactionName) => {
     return !ownerReactionNames.includes(reactionName);
