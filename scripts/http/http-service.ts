@@ -331,6 +331,20 @@ export class User extends HttpService {
       throw new Error(`Cannot publish post: ${postId}`);
     }
   }
+
+  public async getTimeline(groupId: string, after?: string): Promise<any> {
+    try {
+      const response = await this.sendRequestAndRetry(async () =>
+        this.http.get(`/content/timeline/${groupId}?limit=20${after ? `&after=${after}` : ''}`, {
+          headers: { 'x-version-id': '1.14.0' },
+        })
+      );
+      return response.data.data;
+    } catch (error) {
+      console.error('getTimeline', error.response.data);
+      throw new Error(`Cannot get timeline for group: ${groupId}`);
+    }
+  }
 }
 
 export class SysAdmin extends User {
