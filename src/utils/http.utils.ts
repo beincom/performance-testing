@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+import { check } from 'k6';
 import http from 'k6/http';
 import { Counter } from 'k6/metrics'; // @ts-ignore
+import httpagg from 'k6/x/httpagg'; // @ts-ignore
 import { openKv } from 'k6/x/kv';
 
 import { CONFIGS } from '../../config';
-import { COMMON_CONFIG, TEST_PASSWORD } from '../common';
+import { COMMON_CONFIG, SERVICE, TEST_PASSWORD } from '../common';
 
 export const SERVER_DOWN_COUNT = 'server_down_count';
 export const REQUEST_TIMEOUT_COUNT = 'request_timeout_count';
@@ -41,29 +43,23 @@ export const kv: {
 };
 
 export async function getToken(username: string): Promise<string> {
-  const res: any = http.post(
-    'https://cognito-idp.ap-southeast-1.amazonaws.com/',
-    JSON.stringify({
-      AuthParameters: {
-        USERNAME: username,
-        PASSWORD: TEST_PASSWORD,
-      },
-      AuthFlow: 'USER_PASSWORD_AUTH',
-      ClientId: CONFIGS.COGNITO_CLIENT_ID,
-    }),
-    {
-      headers: {
-        Accept: '*/*',
-        'X-Amz-Target': 'AWSCognitoIdentityProviderService.InitiateAuth',
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    }
-  );
+  const res: any = http.post(`${SERVICE.USER.HOST}/auth/login`, {
+    email: `${username}@${CONFIGS.EMAIL_DOMAIN}`,
+    password: TEST_PASSWORD,
+  });
 
-  if (!res.json().AuthenticationResult) {
+  const status = check(res, {
+    '[getToken] status is 200': (r) => r.status === 200,
+  });
+  httpagg.checkRequest(res, status, {
+    fileName: 'dashboard/httpagg-getTokenResult.json',
+    aggregateLevel: 'onError',
+  });
+
+  if (!res?.json()?.data) {
     throw new Error(`Cannot get token for user: ${username}`);
   }
-  const token = res.json().AuthenticationResult.IdToken;
+  const token = res.json().data.id_token;
   await kv.set(username, token);
   return token;
 }

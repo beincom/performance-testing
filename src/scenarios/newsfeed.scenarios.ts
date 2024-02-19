@@ -101,45 +101,6 @@ export async function newsfeedScenario(): Promise<void> {
   });
 }
 
-export function teardown(data) {
-  httpagg.generateRaport(
-    'dashboard/httpagg-newsfeedResult.json',
-    'dashboard/httpagg-newsfeedResult-report.html'
-  );
-  httpagg.generateRaport(
-    'dashboard/httpagg-reactionResult.json',
-    'dashboard/httpagg-reactionResult-report.html'
-  );
-  httpagg.generateRaport(
-    'dashboard/httpagg-markAsReadResult.json',
-    'dashboard/httpagg-markAsReadResult-report.html'
-  );
-  httpagg.generateRaport(
-    'dashboard/httpagg-saveContentResult.json',
-    'dashboard/httpagg-saveContentResult-report.html'
-  );
-  httpagg.generateRaport(
-    'dashboard/httpagg-contentDetailResult.json',
-    'dashboard/httpagg-contentDetailResult-report.html'
-  );
-  httpagg.generateRaport(
-    'dashboard/httpagg-commentListResult.json',
-    'dashboard/httpagg-commentListResult-report.html'
-  );
-  httpagg.generateRaport(
-    'dashboard/httpagg-replyCommentResult.json',
-    'dashboard/httpagg-replyCommentResult-report.html'
-  );
-  httpagg.generateRaport(
-    'dashboard/httpagg-commentResult.json',
-    'dashboard/httpagg-commentResult-report.html'
-  );
-  httpagg.generateRaport(
-    'dashboard/httpagg-menuSettingsResult.json',
-    'dashboard/httpagg-menuSettingsResult-report.html'
-  );
-}
-
 async function demoReaction(
   actor: Actor,
   targetId: string,
