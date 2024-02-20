@@ -6,11 +6,11 @@ import quiz_array from './quiz_array.json';
 
 /**
   {
-    communityId: 'd693e77a-6876-496c-8acf-fee7620da26e',
-    groupId: 'b50a4cf0-4db5-4b97-8fbc-75188c191f5d',
-    communityName: 'COM Suggest privacy',
-    ownerId: '61702d46-d30d-4f99-ad38-0a553b44b79e',
-    ownerUsername: 'betestuser1',
+    communityId: 'c807e261-3322-459c-be69-0186f8023b60',
+    groupId: '96990a90-7ee4-457f-85e2-00d8206a77f8',
+    communityName: 'QC 1 Community 1',
+    ownerId: 'f2ca9d2c-4097-49c4-9986-295685cbd0da',
+    ownerUsername: 'betestsystemadmin',
   }
 */
 export async function createQuizCsv(numOfQuiz: number = 20): Promise<void> {
@@ -18,8 +18,8 @@ export async function createQuizCsv(numOfQuiz: number = 20): Promise<void> {
 
   const quizzes = numOfQuiz > quiz_array.length ? quiz_array : quiz_array.slice(0, numOfQuiz);
 
-  const communityAdmin = await User.init({ username: 'betestuser1' });
-  const groupId = 'b50a4cf0-4db5-4b97-8fbc-75188c191f5d';
+  const communityAdmin = await User.init({ username: 'betestsystemadmin' });
+  const groupId = '96990a90-7ee4-457f-85e2-00d8206a77f8';
 
   const contents = [];
   let contentAfter = '';

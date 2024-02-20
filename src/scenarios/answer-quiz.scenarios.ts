@@ -10,11 +10,11 @@ import { generateRandomNumber } from '../utils/utils';
 export const NON_QUIZZES_COUNT = 'non_quizzes_count';
 const NonQuizzesCounter = new Counter(NON_QUIZZES_COUNT);
 
-const invalidUserNumber = [98];
+const invalidUserNumber = [];
 
 export async function answerQuizScenario(): Promise<void> {
   const vuID = execution.vu.idInTest; // Get current virtual user's id
-  const groupId = 'b50a4cf0-4db5-4b97-8fbc-75188c191f5d'; // This is the test group id for the quiz
+  const groupId = '96990a90-7ee4-457f-85e2-00d8206a77f8'; // This is the test group id for the quiz
 
   if (invalidUserNumber.includes(vuID)) {
     return;
