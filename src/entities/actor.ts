@@ -40,6 +40,30 @@ export class Actor {
     });
   }
 
+  public async getImportantNewsfeed(after?: string): Promise<any> {
+    let url = `${SERVICE.CONTENT.HOST}/newsfeed?isImportant=true&limit=20`;
+    if (after) {
+      url += `&after=${after}`;
+    }
+    return GET({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
+    });
+  }
+
+  public async getFilterNewsfeed(type?: string, after?: string): Promise<any> {
+    let url = `${SERVICE.CONTENT.HOST}/newsfeed?type=${type}&limit=20`;
+    if (after) {
+      url += `&after=${after}`;
+    }
+    return GET({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
+    });
+  }
+
   public async getContentDetail(contentId: string, contentType: string): Promise<any> {
     switch (contentType) {
       case 'POST': {
