@@ -168,4 +168,50 @@ export class Actor {
       body: { content, post_id: contentId },
     });
   }
+
+  public async startQuiz(quizId: string): Promise<any> {
+    const url = `${SERVICE.CONTENT.HOST}/quiz-participant/${quizId}/start`;
+
+    return POST({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
+    });
+  }
+
+  public async getQuizResult(quizParticipantId: string): Promise<any> {
+    return GET({
+      actorUsername: this.username,
+      url: `${SERVICE.CONTENT.HOST}/quiz-participant/${quizParticipantId}`,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
+    });
+  }
+
+  public async answerQuiz(
+    quizParticipantId: string,
+    answers: { questionId: string; answerId: string }[]
+  ): Promise<any> {
+    const url = `${SERVICE.CONTENT.HOST}/quiz-participant/${quizParticipantId}/answers`;
+
+    return PUT({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
+      body: { answers },
+    });
+  }
+
+  public async finishQuiz(
+    quizParticipantId: string,
+    answers: { questionId: string; answerId: string }[]
+  ): Promise<any> {
+    const url = `${SERVICE.CONTENT.HOST}/quiz-participant/${quizParticipantId}/answers`;
+
+    return PUT({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
+      body: { answers, isFinished: true },
+    });
+  }
 }
