@@ -9,6 +9,7 @@ import { REQUEST_TIMEOUT_COUNT, SERVER_DOWN_COUNT, kv } from './utils/http.utils
 
 export * from './scenarios/newsfeed.scenarios';
 export * from './scenarios/filter-newsfeed.scenarios';
+export * from './scenarios/publish-content.scenarios';
 export * from './scenarios/answer-quiz.scenarios';
 
 export const options: Options = {
@@ -36,6 +37,19 @@ export const options: Options = {
         { duration: '10m', target: 1000 },
         { duration: '5m', target: 1000 },
         { duration: '15m', target: 800 },
+      ],
+    },
+
+    publishContentScenario: {
+      exec: 'publishContentScenario',
+      executor: 'ramping-vus',
+      startVUs: 1,
+      stages: [
+        { duration: '5m', target: 10 },
+        { duration: '5m', target: 50 },
+        { duration: '10m', target: 100 },
+        { duration: '5m', target: 100 },
+        { duration: '15m', target: 80 },
       ],
     },
 
@@ -106,6 +120,26 @@ export function teardown(): void {
   httpagg.generateRaport(
     'dashboard/httpagg-menuSettingsResult.json',
     'dashboard/httpagg-menuSettingsResult-report.html'
+  );
+
+  httpagg.generateRaport(
+    'dashboard/httpagg-audienceGroupsResult.json',
+    'dashboard/httpagg-audienceGroupsResult-report.html'
+  );
+
+  httpagg.generateRaport(
+    'dashboard/httpagg-createDraftPostResult.json',
+    'dashboard/httpagg-createDraftPostResult-report.html'
+  );
+
+  httpagg.generateRaport(
+    'dashboard/httpagg-saveDraftPostResult.json',
+    'dashboard/httpagg-saveDraftPostResult-report.html'
+  );
+
+  httpagg.generateRaport(
+    'dashboard/httpagg-publishPostResult.json',
+    'dashboard/httpagg-publishPostResult-report.html'
   );
 
   // httpagg.generateRaport(
