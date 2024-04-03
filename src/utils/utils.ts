@@ -1,3 +1,5 @@
+import crypto from 'k6/crypto';
+
 export function rand(max: number): number {
   return Math.floor(Math.random() * max) + 1;
 }
@@ -25,4 +27,22 @@ export function makeArrayFromRange(startNumber: number, endNumber: number): numb
   }
 
   return [...new Set(data)];
+}
+
+export function generateActorID(data: {
+  idInInstance: number;
+  idInTest: number;
+  iterationInInstance: number;
+  iterationInScenario: number;
+}): number {
+  const { idInInstance, idInTest, iterationInInstance, iterationInScenario } = data;
+  // Concatenate the parameters into a string
+  const concatenatedString = `${idInInstance}${idInTest}${iterationInInstance}${iterationInScenario}`;
+
+  const hash = crypto.sha256(concatenatedString, 'hex');
+
+  // Convert the hash to an integer within the range [1, 4000]
+  const actorID = (parseInt(hash, 16) % 4000) + 1;
+
+  return actorID;
 }

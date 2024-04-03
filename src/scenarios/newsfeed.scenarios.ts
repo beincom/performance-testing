@@ -1,15 +1,23 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { check, group, sleep } from 'k6'; // @ts-ignore
+import { check, group, sleep } from 'k6';
+import execution from 'k6/execution'; // @ts-ignore
 import httpagg from 'k6/x/httpagg';
 
 import { Actor } from '../entities/actor';
-import { generateRandomNumber, generateRandomString } from '../utils/utils';
+import { generateActorID, generateRandomNumber, generateRandomString } from '../utils/utils';
 
 export async function newsfeedScenario(): Promise<void> {
-  const vuID = __VU; // Get current virtual user's id
+  const { idInInstance, idInTest, iterationInInstance, iterationInScenario } = execution.vu;
+
+  const uniqueActorId = generateActorID({
+    idInInstance,
+    idInTest,
+    iterationInInstance,
+    iterationInScenario,
+  });
 
   await group('NewsfeedSession', async () => {
-    const actor = Actor.init(vuID);
+    const actor = Actor.init(uniqueActorId);
 
     const randomGetNewsfeedTimes = generateRandomNumber(5, 25);
 

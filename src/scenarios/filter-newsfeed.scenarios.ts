@@ -1,15 +1,23 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { check, group, sleep } from 'k6'; // @ts-ignore
+import { check, group, sleep } from 'k6';
+import execution from 'k6/execution'; // @ts-ignore
 import httpagg from 'k6/x/httpagg';
 
 import { Actor } from '../entities/actor';
-import { generateRandomNumber, generateRandomString } from '../utils/utils';
+import { generateActorID, generateRandomNumber, generateRandomString } from '../utils/utils';
 
 export async function filterNewsfeedScenario(): Promise<void> {
-  const vuID = __VU; // Get current virtual user's id
+  const { idInInstance, idInTest, iterationInInstance, iterationInScenario } = execution.vu;
+
+  const uniqueActorId = generateActorID({
+    idInInstance,
+    idInTest,
+    iterationInInstance,
+    iterationInScenario,
+  });
 
   await group('FilterNewsfeedSession', async () => {
-    const actor = Actor.init(vuID);
+    const actor = Actor.init(uniqueActorId);
 
     /**
      * 10% of users will see important newsfeed
@@ -149,7 +157,6 @@ async function importantNewsfeed(actor: Actor): Promise<void> {
         if (needActionToContent === 1) {
           for (let j = 0; j < contents.length; j++) {
             const content = contents[j];
-            console.log('======> content', content);
             const ownerReactionNames = (content.ownerReactions || []).map(
               (reaction) => reaction.reactionName
             );

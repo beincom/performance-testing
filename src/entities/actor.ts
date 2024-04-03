@@ -19,12 +19,46 @@ export class Actor {
     return actor;
   }
 
-  public async getJoinedCommunities(): Promise<{
-    data: { id: string; group_id: string; name: string }[];
-  }> {
+  public async getJoinedCommunities(): Promise<any> {
     return GET({
       actorUsername: this.username,
       url: `${SERVICE.GROUP.HOST}/me/communities?limit=500`,
+    });
+  }
+
+  public async discoverGroups(offset?: number): Promise<any> {
+    let url = `${SERVICE.GROUP.HOST}/communities/discover?limit=20`;
+    if (offset) {
+      url += `&offset=${offset}`;
+    }
+    return GET({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.GROUP.LATEST_VER },
+    });
+  }
+
+  public async joinGroup(groupId: string): Promise<any> {
+    return POST({
+      actorUsername: this.username,
+      url: `${SERVICE.GROUP.HOST}/groups/${groupId}/join`,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.GROUP.LATEST_VER },
+    });
+  }
+
+  public async leaveGroup(groupId: string): Promise<any> {
+    return POST({
+      actorUsername: this.username,
+      url: `${SERVICE.GROUP.HOST}/groups/${groupId}/leave`,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: '1.0.0' },
+    });
+  }
+
+  public getGroupDetail(groupId: string): Promise<any> {
+    return GET({
+      actorUsername: this.username,
+      url: `${SERVICE.GROUP.HOST}/groups/${groupId}`,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: '1.0.0' },
     });
   }
 

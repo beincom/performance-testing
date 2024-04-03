@@ -5,7 +5,7 @@ import { Counter } from 'k6/metrics'; // @ts-ignore
 import httpagg from 'k6/x/httpagg';
 
 import { Actor } from '../entities/actor';
-import { generateRandomNumber } from '../utils/utils';
+import { generateActorID, generateRandomNumber } from '../utils/utils';
 
 export const NON_QUIZZES_COUNT = 'non_quizzes_count';
 const NonQuizzesCounter = new Counter(NON_QUIZZES_COUNT);
@@ -13,15 +13,23 @@ const NonQuizzesCounter = new Counter(NON_QUIZZES_COUNT);
 const invalidUserNumber = [];
 
 export async function answerQuizScenario(): Promise<void> {
-  const vuID = execution.vu.idInTest; // Get current virtual user's id
+  const { idInInstance, idInTest, iterationInInstance, iterationInScenario } = execution.vu;
+
+  const uniqueActorId = generateActorID({
+    idInInstance,
+    idInTest,
+    iterationInInstance,
+    iterationInScenario,
+  });
+
   const groupId = '96990a90-7ee4-457f-85e2-00d8206a77f8'; // This is the test group id for the quiz
 
-  if (invalidUserNumber.includes(vuID)) {
+  if (invalidUserNumber.includes(uniqueActorId)) {
     return;
   }
 
   await group('AnswerQuizSession', async () => {
-    const actor = Actor.init(vuID);
+    const actor = Actor.init(uniqueActorId);
 
     const contents = await demoGetContentsHasQuizInGetTimeline(actor, groupId);
 

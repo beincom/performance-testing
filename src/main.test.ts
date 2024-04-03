@@ -4,12 +4,13 @@ import { Options } from 'k6/options'; // @ts-ignore
 import httpagg from 'k6/x/httpagg';
 
 import 'regenerator-runtime/runtime';
-// import { NON_QUIZZES_COUNT } from './main.test';
+import { NON_AUDIENCES_COUNT, NON_QUIZZES_COUNT } from './main.test';
 import { REQUEST_TIMEOUT_COUNT, SERVER_DOWN_COUNT, kv } from './utils/http.utils';
 
 export * from './scenarios/newsfeed.scenarios';
 export * from './scenarios/filter-newsfeed.scenarios';
 export * from './scenarios/publish-content.scenarios';
+export * from './scenarios/join-leave-group.scenarios';
 export * from './scenarios/answer-quiz.scenarios';
 
 export const options: Options = {
@@ -53,6 +54,19 @@ export const options: Options = {
       ],
     },
 
+    joinLeaveGroupScenario: {
+      exec: 'joinLeaveGroupScenario',
+      executor: 'ramping-vus',
+      startVUs: 1,
+      stages: [
+        { duration: '5m', target: 10 },
+        { duration: '5m', target: 50 },
+        { duration: '10m', target: 100 },
+        { duration: '5m', target: 100 },
+        { duration: '15m', target: 80 },
+      ],
+    },
+
     // answerQuiz: {
     //   exec: 'answerQuizScenario',
     //   executor: 'ramping-vus',
@@ -71,7 +85,8 @@ export const options: Options = {
     http_req_duration: ['p(95)<1000'], // 95% of requests should be below 1s
     [SERVER_DOWN_COUNT]: [{ threshold: 'count < 50' }], // server down should be less than 100
     [REQUEST_TIMEOUT_COUNT]: [{ threshold: 'count < 50' }], // server down should be less than 100
-    // [NON_QUIZZES_COUNT]: [{ threshold: 'count < 50' }], // quiz in timeline should be less than 100
+    [NON_AUDIENCES_COUNT]: [{ threshold: 'count < 50' }], // quiz in timeline should be less than 100
+    [NON_QUIZZES_COUNT]: [{ threshold: 'count < 50' }], // quiz in timeline should be less than 100
   },
 };
 
@@ -140,6 +155,26 @@ export function teardown(): void {
   httpagg.generateRaport(
     'dashboard/httpagg-publishPostResult.json',
     'dashboard/httpagg-publishPostResult-report.html'
+  );
+
+  httpagg.generateRaport(
+    'dashboard/httpagg-joinGroupResult.json',
+    'dashboard/httpagg-joinGroupResult-report.html'
+  );
+
+  httpagg.generateRaport(
+    'dashboard/httpagg-leaveGroupResult.json',
+    'dashboard/httpagg-leaveGroupResult-report.html'
+  );
+
+  httpagg.generateRaport(
+    'dashboard/httpagg-discoverGroupsResult.json',
+    'dashboard/httpagg-discoverGroupsResult-report.html'
+  );
+
+  httpagg.generateRaport(
+    'dashboard/httpagg-groupDetailResult.json',
+    'dashboard/httpagg-groupDetailResult-report.html'
   );
 
   // httpagg.generateRaport(

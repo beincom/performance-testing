@@ -1,16 +1,28 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { check, group, sleep } from 'k6'; // @ts-ignore
+import { check, group, sleep } from 'k6';
+import execution from 'k6/execution';
+import { Counter } from 'k6/metrics'; // @ts-ignore
 import httpagg from 'k6/x/httpagg';
 
 import sampleContents from '../../seed/sample-contents.json';
 import { Actor } from '../entities/actor';
-import { generateRandomNumber } from '../utils/utils';
+import { generateActorID, generateRandomNumber } from '../utils/utils';
+
+export const NON_AUDIENCES_COUNT = 'non_audiences_count';
+const NonAudiencesCounter = new Counter(NON_AUDIENCES_COUNT);
 
 export async function publishContentScenario(): Promise<void> {
-  const vuID = __VU; // Get current virtual user's id
+  const { idInInstance, idInTest, iterationInInstance, iterationInScenario } = execution.vu;
+
+  const uniqueActorId = generateActorID({
+    idInInstance,
+    idInTest,
+    iterationInInstance,
+    iterationInScenario,
+  });
 
   await group('PublishContentSession', async () => {
-    const actor = Actor.init(vuID);
+    const actor = Actor.init(uniqueActorId);
 
     const randomPublishContentTimes = generateRandomNumber(1, 5);
 
@@ -42,6 +54,7 @@ async function createDraftPost(actor: Actor): Promise<{ postId: string; groupIds
   const audienceGroups = audienceGroupsResult?.data || [];
 
   if (!audienceGroups.length) {
+    NonAudiencesCounter.add(1);
     throw new Error('No audience group found');
   }
 

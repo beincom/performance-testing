@@ -56,7 +56,8 @@ export async function getToken(username: string): Promise<string> {
     aggregateLevel: 'onError',
   });
 
-  if (!res?.json()?.data) {
+  if (!status) {
+    console.error(res);
     throw new Error(`Cannot get token for user: ${username}`);
   }
   const token = res.json().data.id_token;
