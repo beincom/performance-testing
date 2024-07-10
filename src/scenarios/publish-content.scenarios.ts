@@ -30,8 +30,15 @@ export async function publishContentScenario(): Promise<void> {
       const content = sampleContents[generateRandomNumber(0, sampleContents.length - 1)];
 
       const { postId, groupIds } = await createDraftPost(actor);
+      const seriesIds = await getSeriesIds(actor, groupIds);
       await demoSaveDraftPost(actor, { postId, groupIds, content: content.content });
-      await publishPost(actor, { postId, groupIds, content: content.content });
+      await publishPost(actor, { postId, groupIds, content: content.content, seriesIds });
+
+      // Randomly decide whether to generate quiz
+      const needGenerateQuiz = generateRandomNumber(0, 9);
+      if (needGenerateQuiz === 1) {
+        await generateQuiz(actor, postId);
+      }
 
       if (i < randomPublishContentTimes - 1) {
         // Wait for a while before publishing another content
@@ -107,14 +114,14 @@ async function demoSaveDraftPost(
 
 async function publishPost(
   actor: Actor,
-  data: { postId: string; groupIds: string[]; content: string }
+  data: { postId: string; groupIds: string[]; content: string; seriesIds: string[] }
 ): Promise<void> {
-  const { postId, groupIds, content } = data;
+  const { postId, groupIds, content, seriesIds } = data;
 
   // Simulate user reviewing the post
   sleep(generateRandomNumber(10, 60));
 
-  const publishPostResult = await actor.publishPost(postId, { groupIds, content });
+  const publishPostResult = await actor.publishPost(postId, { groupIds, content, seriesIds });
   const publishPostResultStatus = check(publishPostResult, {
     '[publishPostResult] code was api.ok': (res) => res?.code == 'api.ok',
   });
@@ -137,4 +144,60 @@ function splitContentIntoParts(content: string, times: number): string[] {
   }
 
   return parts;
+}
+
+async function getSeriesIds(actor: Actor, groupIds: string[]): Promise<string[]> {
+  const randomSeriesCount = generateRandomNumber(0, 2);
+
+  if (!randomSeriesCount) {
+    return [];
+  }
+
+  const seriesResult = await actor.getSeries(groupIds);
+
+  const seriesResultStatus = check(seriesResult, {
+    '[seriesResult] code was api.ok': (res) => res?.code == 'api.ok',
+  });
+  httpagg.checkRequest(seriesResult, seriesResultStatus, {
+    fileName: 'dashboard/httpagg-seriesResult.json',
+    aggregateLevel: 'onError',
+  });
+
+  const seriesIds = (seriesResult?.data?.list || []).map((series) => series.id);
+
+  if (seriesIds.length <= randomSeriesCount) {
+    return seriesIds;
+  }
+
+  // Randomly pick series
+  const pickedSeriesIds = [];
+  for (let i = 0; i < randomSeriesCount; i++) {
+    pickedSeriesIds.push(seriesIds[generateRandomNumber(0, seriesIds.length - 1)]);
+  }
+
+  return pickedSeriesIds;
+}
+
+async function generateQuiz(actor: Actor, contentId: string): Promise<void> {
+  const menuSettingsResult = await actor.getMenuSettings(contentId);
+  const menuSettingsStatus = check(menuSettingsResult, {
+    '[menuSettingsResult] code was api.ok': (res) => res?.code == 'api.ok',
+  });
+  httpagg.checkRequest(menuSettingsResult, menuSettingsStatus, {
+    fileName: 'dashboard/httpagg-menuSettingsResult.json',
+    aggregateLevel: 'onError',
+  });
+
+  if (menuSettingsResult?.data) {
+    if (menuSettingsResult.data.canCreateQuiz) {
+      const generateQuizResult = await actor.generateQuiz(contentId);
+      const status = check(generateQuizResult, {
+        '[generateQuizResult] code was api.ok': (res) => res?.code == 'api.ok',
+      });
+      httpagg.checkRequest(generateQuizResult, status, {
+        fileName: 'dashboard/httpagg-generateQuizResult.json',
+        aggregateLevel: 'onError',
+      });
+    }
+  }
 }

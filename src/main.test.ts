@@ -67,18 +67,18 @@ export const options: Options = {
       ],
     },
 
-    // answerQuiz: {
-    //   exec: 'answerQuizScenario',
-    //   executor: 'ramping-vus',
-    //   startVUs: 1,
-    //   stages: [
-    //     { duration: '5m', target: 100 },
-    //     { duration: '5m', target: 500 },
-    //     { duration: '10m', target: 1000 },
-    //     { duration: '5m', target: 1000 },
-    //     { duration: '15m', target: 800 },
-    //   ],
-    // },
+    answerQuiz: {
+      exec: 'answerQuizScenario',
+      executor: 'ramping-vus',
+      startVUs: 1,
+      stages: [
+        { duration: '5m', target: 50 },
+        { duration: '5m', target: 200 },
+        { duration: '10m', target: 500 },
+        { duration: '5m', target: 500 },
+        { duration: '15m', target: 300 },
+      ],
+    },
   },
   thresholds: {
     http_req_failed: ['rate<0.01'], // http errors should be less than 1%
@@ -158,6 +158,11 @@ export function teardown(): void {
   );
 
   httpagg.generateRaport(
+    'dashboard/httpagg-seriesResult.json',
+    'dashboard/httpagg-seriesResult-report.html'
+  );
+
+  httpagg.generateRaport(
     'dashboard/httpagg-joinGroupResult.json',
     'dashboard/httpagg-joinGroupResult-report.html'
   );
@@ -177,24 +182,29 @@ export function teardown(): void {
     'dashboard/httpagg-groupDetailResult-report.html'
   );
 
-  // httpagg.generateRaport(
-  //   'dashboard/httpagg-timelineResult.json',
-  //   'dashboard/httpagg-timelineResult-report.html'
-  // );
-  // httpagg.generateRaport(
-  //   'dashboard/httpagg-startQuizResult.json',
-  //   'dashboard/httpagg-startQuizResult-report.html'
-  // );
-  // httpagg.generateRaport(
-  //   'dashboard/httpagg-getQuizResult.json',
-  //   'dashboard/httpagg-getQuizResult-report.html'
-  // );
-  // httpagg.generateRaport(
-  //   'dashboard/httpagg-answerQuizResult.json',
-  //   'dashboard/httpagg-answerQuizResult-report.html'
-  // );
-  // httpagg.generateRaport(
-  //   'dashboard/httpagg-finishQuizResult.json',
-  //   'dashboard/httpagg-finishQuizResult-report.html'
-  // );
+  httpagg.generateRaport(
+    'dashboard/httpagg-timelineResult.json',
+    'dashboard/httpagg-timelineResult-report.html'
+  );
+  httpagg.generateRaport(
+    'dashboard/httpagg-startQuizResult.json',
+    'dashboard/httpagg-startQuizResult-report.html'
+  );
+  httpagg.generateRaport(
+    'dashboard/httpagg-getQuizResult.json',
+    'dashboard/httpagg-getQuizResult-report.html'
+  );
+  httpagg.generateRaport(
+    'dashboard/httpagg-answerQuizResult.json',
+    'dashboard/httpagg-answerQuizResult-report.html'
+  );
+  httpagg.generateRaport(
+    'dashboard/httpagg-finishQuizResult.json',
+    'dashboard/httpagg-finishQuizResult-report.html'
+  );
+
+  httpagg.generateRaport(
+    'dashboard/httpagg-generateQuizResult.json',
+    'dashboard/httpagg-generateQuizResult-report.html'
+  );
 }

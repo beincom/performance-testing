@@ -282,6 +282,21 @@ export class Actor {
     });
   }
 
+  public async generateQuiz(contentId: string): Promise<any> {
+    const url = `${SERVICE.CONTENT.HOST}/quizzes`;
+
+    return POST({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
+      body: {
+        contentId,
+        numberOfAnswers: 4,
+        numberOfQuestions: 10,
+      },
+    });
+  }
+
   public async createDraftPost(groupIds: string[]): Promise<any> {
     const url = `${SERVICE.CONTENT.HOST}/posts`;
 
@@ -312,7 +327,7 @@ export class Actor {
 
   public async publishPost(
     postId: string,
-    data: { groupIds: string[]; content: string }
+    data: { groupIds: string[]; content: string; seriesIds: string[] }
   ): Promise<any> {
     const url = `${SERVICE.CONTENT.HOST}/posts/${postId}/publish`;
 
@@ -323,7 +338,18 @@ export class Actor {
       body: {
         audience: { groupIds: data.groupIds },
         content: data.content,
+        series: data.seriesIds,
       },
+    });
+  }
+
+  public async getSeries(groupIds: string[]): Promise<any> {
+    const url = `${SERVICE.CONTENT.HOST}/series?groupIds[]=${groupIds.join('&groupIds[]=')}`;
+
+    return GET({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
     });
   }
 }
