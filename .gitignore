@@ -2,7 +2,7 @@ node_modules
 yarn-error.log
 dist
 dashboard
-seed
+# seed
 k6
 .k6.kv
 .env
