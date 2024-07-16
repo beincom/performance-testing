@@ -39,9 +39,12 @@ export async function publishContentScenario(): Promise<void> {
 
       // Randomly decide whether to generate quiz
       const needGenerateQuiz = generateRandomNumber(0, 9);
+      let quizGenerated = false;
       if (needGenerateQuiz === 1) {
-        await generateQuiz(actor, postId);
+        quizGenerated = await generateQuiz(actor, postId);
       }
+
+      GenerateQuizRate.add(quizGenerated); // Record the metric
 
       if (i < randomPublishContentTimes - 1) {
         // Wait for a while before publishing another content
@@ -181,7 +184,7 @@ async function getSeriesIds(actor: Actor, groupIds: string[]): Promise<string[]>
   return pickedSeriesIds;
 }
 
-async function generateQuiz(actor: Actor, contentId: string): Promise<void> {
+async function generateQuiz(actor: Actor, contentId: string): Promise<boolean> {
   const menuSettingsResult = await actor.getMenuSettings(contentId);
   const menuSettingsStatus = check(menuSettingsResult, {
     '[menuSettingsResult] code was api.ok': (res) => res?.code == 'api.ok',
@@ -208,5 +211,5 @@ async function generateQuiz(actor: Actor, contentId: string): Promise<void> {
     }
   }
 
-  GenerateQuizRate.add(quizGenerated); // Record the metric
+  return quizGenerated;
 }
