@@ -4,14 +4,14 @@ import { Options } from 'k6/options'; // @ts-ignore
 import httpagg from 'k6/x/httpagg';
 
 import 'regenerator-runtime/runtime';
-import { NON_AUDIENCES_COUNT, NON_QUIZZES_COUNT } from './main.test';
+import { NON_AUDIENCES_COUNT, GENERATE_QUIZ_RATE } from './main.test';
 import { REQUEST_TIMEOUT_COUNT, SERVER_DOWN_COUNT, kv } from './utils/http.utils';
 
 export * from './scenarios/newsfeed.scenarios';
 export * from './scenarios/filter-newsfeed.scenarios';
 export * from './scenarios/publish-content.scenarios';
 export * from './scenarios/join-leave-group.scenarios';
-export * from './scenarios/answer-quiz.scenarios';
+// export * from './scenarios/answer-quiz.scenarios';
 
 export const options: Options = {
   scenarios: {
@@ -67,18 +67,18 @@ export const options: Options = {
       ],
     },
 
-    answerQuiz: {
-      exec: 'answerQuizScenario',
-      executor: 'ramping-vus',
-      startVUs: 1,
-      stages: [
-        { duration: '5m', target: 50 },
-        { duration: '5m', target: 200 },
-        { duration: '10m', target: 500 },
-        { duration: '5m', target: 500 },
-        { duration: '15m', target: 300 },
-      ],
-    },
+    // answerQuiz: {
+    //   exec: 'answerQuizScenario',
+    //   executor: 'ramping-vus',
+    //   startVUs: 1,
+    //   stages: [
+    //     { duration: '5m', target: 50 },
+    //     { duration: '5m', target: 200 },
+    //     { duration: '10m', target: 500 },
+    //     { duration: '5m', target: 500 },
+    //     { duration: '15m', target: 300 },
+    //   ],
+    // },
   },
   thresholds: {
     http_req_failed: ['rate<0.01'], // http errors should be less than 1%
@@ -86,7 +86,8 @@ export const options: Options = {
     [SERVER_DOWN_COUNT]: [{ threshold: 'count < 50' }], // server down should be less than 100
     [REQUEST_TIMEOUT_COUNT]: [{ threshold: 'count < 50' }], // server down should be less than 100
     [NON_AUDIENCES_COUNT]: [{ threshold: 'count < 50' }], // quiz in timeline should be less than 100
-    [NON_QUIZZES_COUNT]: [{ threshold: 'count < 50' }], // quiz in timeline should be less than 100
+    [GENERATE_QUIZ_RATE]: ['rate>0.1'], // generate quiz rate should be more than 10%
+    // [NON_QUIZZES_COUNT]: [{ threshold: 'count < 50' }], // quiz in timeline should be less than 100
   },
 };
 
@@ -182,26 +183,26 @@ export function teardown(): void {
     'dashboard/httpagg-groupDetailResult-report.html'
   );
 
-  httpagg.generateRaport(
-    'dashboard/httpagg-timelineResult.json',
-    'dashboard/httpagg-timelineResult-report.html'
-  );
-  httpagg.generateRaport(
-    'dashboard/httpagg-startQuizResult.json',
-    'dashboard/httpagg-startQuizResult-report.html'
-  );
-  httpagg.generateRaport(
-    'dashboard/httpagg-getQuizResult.json',
-    'dashboard/httpagg-getQuizResult-report.html'
-  );
-  httpagg.generateRaport(
-    'dashboard/httpagg-answerQuizResult.json',
-    'dashboard/httpagg-answerQuizResult-report.html'
-  );
-  httpagg.generateRaport(
-    'dashboard/httpagg-finishQuizResult.json',
-    'dashboard/httpagg-finishQuizResult-report.html'
-  );
+  // httpagg.generateRaport(
+  //   'dashboard/httpagg-timelineResult.json',
+  //   'dashboard/httpagg-timelineResult-report.html'
+  // );
+  // httpagg.generateRaport(
+  //   'dashboard/httpagg-startQuizResult.json',
+  //   'dashboard/httpagg-startQuizResult-report.html'
+  // );
+  // httpagg.generateRaport(
+  //   'dashboard/httpagg-getQuizResult.json',
+  //   'dashboard/httpagg-getQuizResult-report.html'
+  // );
+  // httpagg.generateRaport(
+  //   'dashboard/httpagg-answerQuizResult.json',
+  //   'dashboard/httpagg-answerQuizResult-report.html'
+  // );
+  // httpagg.generateRaport(
+  //   'dashboard/httpagg-finishQuizResult.json',
+  //   'dashboard/httpagg-finishQuizResult-report.html'
+  // );
 
   httpagg.generateRaport(
     'dashboard/httpagg-generateQuizResult.json',

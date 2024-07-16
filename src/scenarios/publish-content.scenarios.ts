@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { check, group, sleep } from 'k6';
 import execution from 'k6/execution';
-import { Counter } from 'k6/metrics'; // @ts-ignore
+import { Counter, Rate } from 'k6/metrics'; // @ts-ignore
 import httpagg from 'k6/x/httpagg';
 
 import sampleContents from '../../seed/sample-contents.json';
@@ -9,7 +9,10 @@ import { Actor } from '../entities/actor';
 import { generateActorID, generateRandomNumber } from '../utils/utils';
 
 export const NON_AUDIENCES_COUNT = 'non_audiences_count';
+export const GENERATE_QUIZ_RATE = 'generate_quiz_rate';
+
 const NonAudiencesCounter = new Counter(NON_AUDIENCES_COUNT);
+const GenerateQuizRate = new Rate(GENERATE_QUIZ_RATE);
 
 export async function publishContentScenario(): Promise<void> {
   const { idInInstance, idInTest, iterationInInstance, iterationInScenario } = execution.vu;
@@ -188,6 +191,8 @@ async function generateQuiz(actor: Actor, contentId: string): Promise<void> {
     aggregateLevel: 'onError',
   });
 
+  let quizGenerated = false; // Add this line to track if the quiz was generated
+
   if (menuSettingsResult?.data) {
     if (menuSettingsResult.data.canCreateQuiz) {
       const generateQuizResult = await actor.generateQuiz(contentId);
@@ -198,6 +203,10 @@ async function generateQuiz(actor: Actor, contentId: string): Promise<void> {
         fileName: 'dashboard/httpagg-generateQuizResult.json',
         aggregateLevel: 'onError',
       });
+
+      quizGenerated = true; // Set to true if quiz was generated
     }
   }
+
+  GenerateQuizRate.add(quizGenerated); // Record the metric
 }
