@@ -84,7 +84,7 @@ export class Actor {
   }
 
   public async getImportantNewsfeed(after?: string): Promise<any> {
-    let url = `${SERVICE.CONTENT.HOST}/newsfeed?isImportant=true&limit=20`;
+    let url = `${SERVICE.CONTENT.HOST}/newsfeed/following?isImportant=true&limit=20`;
     if (after) {
       url += `&after=${after}`;
     }
@@ -96,7 +96,7 @@ export class Actor {
   }
 
   public async getFilterNewsfeed(type?: string, after?: string): Promise<any> {
-    let url = `${SERVICE.CONTENT.HOST}/newsfeed?type=${type}&limit=20`;
+    let url = `${SERVICE.CONTENT.HOST}/newsfeed/following?types[]=${type}&limit=20`;
     if (after) {
       url += `&after=${after}`;
     }
