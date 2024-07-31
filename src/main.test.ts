@@ -54,18 +54,18 @@ export const options: Options = {
       ],
     },
 
-    joinLeaveGroupScenario: {
-      exec: 'joinLeaveGroupScenario',
-      executor: 'ramping-vus',
-      startVUs: 1,
-      stages: [
-        { duration: '5m', target: 10 },
-        { duration: '5m', target: 50 },
-        { duration: '10m', target: 100 },
-        { duration: '5m', target: 100 },
-        { duration: '15m', target: 80 },
-      ],
-    },
+    // joinLeaveGroupScenario: {
+    //   exec: 'joinLeaveGroupScenario',
+    //   executor: 'ramping-vus',
+    //   startVUs: 1,
+    //   stages: [
+    //     { duration: '5m', target: 10 },
+    //     { duration: '5m', target: 50 },
+    //     { duration: '10m', target: 100 },
+    //     { duration: '5m', target: 100 },
+    //     { duration: '15m', target: 80 },
+    //   ],
+    // },
 
     // answerQuiz: {
     //   exec: 'answerQuizScenario',
@@ -163,25 +163,25 @@ export function teardown(): void {
     'dashboard/httpagg-seriesResult-report.html'
   );
 
-  httpagg.generateRaport(
-    'dashboard/httpagg-joinGroupResult.json',
-    'dashboard/httpagg-joinGroupResult-report.html'
-  );
+  // httpagg.generateRaport(
+  //   'dashboard/httpagg-joinGroupResult.json',
+  //   'dashboard/httpagg-joinGroupResult-report.html'
+  // );
 
-  httpagg.generateRaport(
-    'dashboard/httpagg-leaveGroupResult.json',
-    'dashboard/httpagg-leaveGroupResult-report.html'
-  );
+  // httpagg.generateRaport(
+  //   'dashboard/httpagg-leaveGroupResult.json',
+  //   'dashboard/httpagg-leaveGroupResult-report.html'
+  // );
 
-  httpagg.generateRaport(
-    'dashboard/httpagg-discoverGroupsResult.json',
-    'dashboard/httpagg-discoverGroupsResult-report.html'
-  );
+  // httpagg.generateRaport(
+  //   'dashboard/httpagg-discoverGroupsResult.json',
+  //   'dashboard/httpagg-discoverGroupsResult-report.html'
+  // );
 
-  httpagg.generateRaport(
-    'dashboard/httpagg-groupDetailResult.json',
-    'dashboard/httpagg-groupDetailResult-report.html'
-  );
+  // httpagg.generateRaport(
+  //   'dashboard/httpagg-groupDetailResult.json',
+  //   'dashboard/httpagg-groupDetailResult-report.html'
+  // );
 
   // httpagg.generateRaport(
   //   'dashboard/httpagg-timelineResult.json',

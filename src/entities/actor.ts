@@ -72,7 +72,7 @@ export class Actor {
   }
 
   public async getNewsfeed(after?: string): Promise<any> {
-    let url = `${SERVICE.CONTENT.HOST}/newsfeed?limit=20`;
+    let url = `${SERVICE.CONTENT.HOST}/newsfeed/following?limit=20`;
     if (after) {
       url += `&after=${after}`;
     }
