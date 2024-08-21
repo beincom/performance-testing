@@ -56,7 +56,8 @@ export async function getToken(username: string): Promise<string> {
     aggregateLevel: 'onError',
   });
 
-  if (!res?.json()?.data) {
+  if (!status) {
+    console.error(res);
     throw new Error(`Cannot get token for user: ${username}`);
   }
   const token = res.json().data.id_token;
@@ -90,6 +91,26 @@ export function PUT(data: ApiData): Promise<any> {
       timeout: COMMON_CONFIG.TIMEOUT,
       tags: {
         name: `PUT:${stripId(data.url)}`,
+      },
+      headers: Object.assign(
+        {
+          'Content-Type': 'application/json',
+          authorization: data.token,
+          [COMMON_CONFIG.HEADER_KEY.VER]: COMMON_CONFIG.LATEST_VER,
+        },
+        data.headers
+      ) as any,
+    });
+
+  return sendHttpRequest(request, data);
+}
+
+export function PATCH(data: ApiData): Promise<any> {
+  const request = (): any =>
+    http.patch(data.url, JSON.stringify(data.body), {
+      timeout: COMMON_CONFIG.TIMEOUT,
+      tags: {
+        name: `PATCH:${stripId(data.url)}`,
       },
       headers: Object.assign(
         {

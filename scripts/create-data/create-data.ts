@@ -1,9 +1,9 @@
 import { CONFIGS } from '../../config';
-import { makeArrayFromRange } from '../../src/utils/utils';
 import { Community, SysAdmin, User, randomSleep } from '../http/http-service';
 import { generatePostSeed } from '../seed/content-seed-generator';
 import { generateCommunityName } from '../seed/group-seed-generator';
 import { generateUserNameSeed } from '../seed/user-seed-generator';
+import { makeArrayFromRange } from '../utils/utils';
 
 export interface ISeedDataFrom {
   communityIndex: number;

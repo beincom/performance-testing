@@ -1,5 +1,5 @@
 import { CONFIGS } from '../../config';
-import { makeArrayFromRange } from '../../src/utils/utils';
+import { makeArrayFromRange } from '../utils/utils';
 
 import { SeedUser, generateUserSeedFromUserNumber } from './user-seed-generator';
 

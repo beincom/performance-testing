@@ -1,7 +1,7 @@
 import { CONFIGS } from '../../config';
 import { generateUserNameSeed } from '../../scripts/seed/user-seed-generator';
 import { COMMON_CONFIG, SERVICE } from '../common';
-import { GET, POST, PUT } from '../utils/http.utils';
+import { GET, PATCH, POST, PUT } from '../utils/http.utils';
 import { rand } from '../utils/utils';
 
 export class Actor {
@@ -19,17 +19,84 @@ export class Actor {
     return actor;
   }
 
-  public async getJoinedCommunities(): Promise<{
-    data: { id: string; group_id: string; name: string }[];
-  }> {
+  public async getJoinedCommunities(): Promise<any> {
     return GET({
       actorUsername: this.username,
       url: `${SERVICE.GROUP.HOST}/me/communities?limit=500`,
     });
   }
 
+  public async discoverGroups(offset?: number): Promise<any> {
+    let url = `${SERVICE.GROUP.HOST}/communities/discover?limit=20`;
+    if (offset) {
+      url += `&offset=${offset}`;
+    }
+    return GET({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.GROUP.LATEST_VER },
+    });
+  }
+
+  public async joinGroup(groupId: string): Promise<any> {
+    return POST({
+      actorUsername: this.username,
+      url: `${SERVICE.GROUP.HOST}/groups/${groupId}/join`,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.GROUP.LATEST_VER },
+    });
+  }
+
+  public async leaveGroup(groupId: string): Promise<any> {
+    return POST({
+      actorUsername: this.username,
+      url: `${SERVICE.GROUP.HOST}/groups/${groupId}/leave`,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: '1.0.0' },
+    });
+  }
+
+  public getGroupDetail(groupId: string): Promise<any> {
+    return GET({
+      actorUsername: this.username,
+      url: `${SERVICE.GROUP.HOST}/groups/${groupId}`,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: '1.0.0' },
+    });
+  }
+
+  public async getPostAudienceGroups(): Promise<any> {
+    const url = `${SERVICE.GROUP.HOST}/post-audiences?key=&offset=0&limit=10&content=post`;
+    return GET({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.GROUP.LATEST_VER },
+    });
+  }
+
   public async getNewsfeed(after?: string): Promise<any> {
-    let url = `${SERVICE.CONTENT.HOST}/newsfeed?limit=20`;
+    let url = `${SERVICE.CONTENT.HOST}/newsfeed/following?limit=20`;
+    if (after) {
+      url += `&after=${after}`;
+    }
+    return GET({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
+    });
+  }
+
+  public async getImportantNewsfeed(after?: string): Promise<any> {
+    let url = `${SERVICE.CONTENT.HOST}/newsfeed/following?isImportant=true&limit=20`;
+    if (after) {
+      url += `&after=${after}`;
+    }
+    return GET({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
+    });
+  }
+
+  public async getFilterNewsfeed(type?: string, after?: string): Promise<any> {
+    let url = `${SERVICE.CONTENT.HOST}/newsfeed/following?types[]=${type}&limit=20`;
     if (after) {
       url += `&after=${after}`;
     }
@@ -212,6 +279,77 @@ export class Actor {
       url,
       headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
       body: { answers, isFinished: true },
+    });
+  }
+
+  public async generateQuiz(contentId: string): Promise<any> {
+    const url = `${SERVICE.CONTENT.HOST}/quizzes`;
+
+    return POST({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
+      body: {
+        contentId,
+        numberOfAnswers: 4,
+        numberOfQuestions: 10,
+      },
+    });
+  }
+
+  public async createDraftPost(groupIds: string[]): Promise<any> {
+    const url = `${SERVICE.CONTENT.HOST}/posts`;
+
+    return POST({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
+      body: { audience: { groupIds } },
+    });
+  }
+
+  public async saveDraftPost(
+    postId: string,
+    data: { groupIds: string[]; content: string }
+  ): Promise<any> {
+    const url = `${SERVICE.CONTENT.HOST}/posts/${postId}`;
+
+    return PATCH({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
+      body: {
+        audience: { groupIds: data.groupIds },
+        content: data.content,
+      },
+    });
+  }
+
+  public async publishPost(
+    postId: string,
+    data: { groupIds: string[]; content: string; seriesIds: string[] }
+  ): Promise<any> {
+    const url = `${SERVICE.CONTENT.HOST}/posts/${postId}/publish`;
+
+    return PUT({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
+      body: {
+        audience: { groupIds: data.groupIds },
+        content: data.content,
+        series: data.seriesIds,
+      },
+    });
+  }
+
+  public async getSeries(groupIds: string[]): Promise<any> {
+    const url = `${SERVICE.CONTENT.HOST}/series?groupIds[]=${groupIds.join('&groupIds[]=')}`;
+
+    return GET({
+      actorUsername: this.username,
+      url,
+      headers: { [COMMON_CONFIG.HEADER_KEY.VER]: SERVICE.CONTENT.LATEST_VER },
     });
   }
 }

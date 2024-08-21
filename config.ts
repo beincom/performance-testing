@@ -7,7 +7,7 @@ export const CONFIGS = {
 
   SYS_ADMIN_USER_NAME: 'betestsystemadmin',
 
-  USERNAME_PREFIX: 'qc1user',
+  USERNAME_PREFIX: 'qctwouser',
   FULL_NAME_PREFIX: 'BE Test User',
   EMAIL_DOMAIN: 'be.in',
   DEFAULT_PASSWORD: '1$orMore',

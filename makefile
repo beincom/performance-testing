@@ -6,13 +6,13 @@ UNAME := $(shell uname)
 build-extension:
 ifeq ($(UNAME), Linux)
 	@echo "Running command for Linux:"
-	docker run --rm -it -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" grafana/xk6 build v0.43.1 --with github.com/oleiade/xk6-kv --with github.com/grafana/xk6-dashboard@v0.7.3-alpha.1 --with github.com/Juandavi1/xk6-prompt@0.0.1 --with github.com/gpiechnik2/xk6-httpagg@v1.0.0 --with github.com/elastic/xk6-output-elasticsearch@v0.3.0
+	docker run --rm -it -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" grafana/xk6 build v0.43.1 --with github.com/oleiade/xk6-kv --with github.com/grafana/xk6-dashboard@v0.7.5 --with github.com/Juandavi1/xk6-prompt@0.0.1 --with github.com/gpiechnik2/xk6-httpagg@v1.0.0 --with github.com/elastic/xk6-output-elasticsearch@v0.3.0
 else ifeq ($(UNAME), Darwin)
 	@echo "Running command for Mac:"
-	docker run --rm -it -e GOOS=darwin -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" grafana/xk6 build v0.43.1 --with github.com/oleiade/xk6-kv --with github.com/grafana/xk6-dashboard@v0.7.3-alpha.1 --with github.com/Juandavi1/xk6-prompt@0.0.1 --with github.com/gpiechnik2/xk6-httpagg@v1.0.0 --with github.com/elastic/xk6-output-elasticsearch@v0.3.0
+	docker run --rm -it -e GOOS=darwin -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" grafana/xk6 build v0.43.1 --with github.com/oleiade/xk6-kv --with github.com/grafana/xk6-dashboard@v0.7.5 --with github.com/Juandavi1/xk6-prompt@0.0.1 --with github.com/gpiechnik2/xk6-httpagg@v1.0.0 --with github.com/elastic/xk6-output-elasticsearch@v0.3.0
 else ifeq ($(UNAME), Windows)
 	@echo "Running command for Windows:"
-	docker run --rm -it -e GOOS=windows -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" grafana/xk6 build v0.43.1 --output k6.exe --with github.com/oleiade/xk6-kv --with github.com/grafana/xk6-dashboard@v0.7.3-alpha.1 --with github.com/Juandavi1/xk6-prompt@0.0.1 --with github.com/gpiechnik2/xk6-httpagg@v1.0.0 --with github.com/elastic/xk6-output-elasticsearch@v0.3.0
+	docker run --rm -it -e GOOS=windows -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" grafana/xk6 build v0.43.1 --output k6.exe --with github.com/oleiade/xk6-kv --with github.com/grafana/xk6-dashboard@v0.7.5 --with github.com/Juandavi1/xk6-prompt@0.0.1 --with github.com/gpiechnik2/xk6-httpagg@v1.0.0 --with github.com/elastic/xk6-output-elasticsearch@v0.3.0
 else
 	$(error Unsupported operating system: $(UNAME))
 endif

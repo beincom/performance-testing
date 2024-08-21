@@ -272,7 +272,7 @@ export class User extends HttpService {
         {},
         {
           headers: {
-            'x-version-id': '1.1.0',
+            'x-version-id': '2.0.0',
           },
         }
       )
@@ -307,7 +307,7 @@ export class User extends HttpService {
         this.http.post(
           'content/posts',
           { audience: { group_ids: groupIds } },
-          { headers: { 'x-version-id': '1.12.0' } }
+          { headers: { 'x-version-id': '1.16.0' } }
         )
       );
       return res.data.data;
@@ -323,7 +323,7 @@ export class User extends HttpService {
         this.http.put(
           `content/posts/${postId}/publish`,
           { content },
-          { headers: { 'x-version-id': '1.12.0' } }
+          { headers: { 'x-version-id': '1.16.0' } }
         )
       );
     } catch (e) {
@@ -332,11 +332,82 @@ export class User extends HttpService {
     }
   }
 
+  public async createDraftArticle(groupIds: string[]): Promise<{ id: string }> {
+    try {
+      const res = await this.sendRequestAndRetry(async () =>
+        this.http.post(
+          'content/articles',
+          { audience: { group_ids: groupIds } },
+          { headers: { 'x-version-id': '1.16.0' } }
+        )
+      );
+      return res.data.data;
+    } catch (e) {
+      console.error('createDraftArticle', e.response.data);
+      throw new Error(`Cannot create draft article in group ids: ${groupIds.join(', ')}`);
+    }
+  }
+
+  public async publishArticle(
+    articleId: string,
+    data: { title: string; content: string; categories: string[] }
+  ): Promise<void> {
+    const { title, content, categories } = data;
+    try {
+      return this.sendRequestAndRetry(async () =>
+        this.http.put(
+          `content/articles/${articleId}/publish`,
+          { title, content, categories },
+          { headers: { 'x-version-id': '1.16.0' } }
+        )
+      );
+    } catch (e) {
+      console.error('publishArticle', e.response.data);
+      throw new Error(`Cannot publish article: ${articleId}`);
+    }
+  }
+
+  public async updateContentImportant(contentId: string, isImportant: boolean): Promise<void> {
+    try {
+      return this.sendRequestAndRetry(async () =>
+        this.http.put(`content/contents/${contentId}/setting`, {
+          isImportant,
+          canComment: true,
+          canReact: true,
+        })
+      );
+    } catch (e) {
+      console.error('updateContentImportant', e.response.data);
+      throw new Error(`Cannot update content important: ${contentId}`);
+    }
+  }
+
+  public async publishSeries(
+    title: string,
+    coverMediaId: string,
+    groupIds: string[],
+    isImportant: boolean
+  ): Promise<void> {
+    try {
+      return this.sendRequestAndRetry(async () =>
+        this.http.post('content/series', {
+          title,
+          coverMedia: { id: coverMediaId },
+          audience: { group_ids: groupIds },
+          setting: { isImportant, canComment: true, canReact: true },
+        })
+      );
+    } catch (e) {
+      console.error('publishSeries', e.response.data);
+      throw new Error('Cannot publish series');
+    }
+  }
+
   public async getTimeline(groupId: string, after?: string): Promise<any> {
     try {
       const response = await this.sendRequestAndRetry(async () =>
         this.http.get(`/content/timeline/${groupId}?limit=20${after ? `&after=${after}` : ''}`, {
-          headers: { 'x-version-id': '1.14.0' },
+          headers: { 'x-version-id': '1.16.0' },
         })
       );
       return response.data.data;

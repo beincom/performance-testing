@@ -1,0 +1,50 @@
+[
+  {
+    "name": "QC 1 Community 1",
+    "id": "c807e261-3322-459c-be69-0186f8023b60",
+    "groupId": "96990a90-7ee4-457f-85e2-00d8206a77f8",
+    "userId": "05e7eeaa-0223-4736-abc0-35b00afb304c",
+    "username": "qc1user1",
+    "imageId": "7dbdb901-81c8-482a-bb34-ff77bd3d05e9",
+    "memberRange": [1, 2000],
+    "numOfPosts": 2000,
+    "numOfArticles": 500,
+    "numOfSeries": 100
+  },
+  {
+    "name": "QC 1 Community 2",
+    "id": "7d3ef361-a269-4fa4-b7bf-8f088fde1e04",
+    "groupId": "7131720d-980a-4df2-810a-664f5d25832e",
+    "userId": "d2671998-a37a-4a74-81aa-c46f39abdf9f",
+    "username": "qc1user3",
+    "imageId": "83ca910e-fcd8-45ef-bef4-a318344fe90c",
+    "memberRange": [1000, 3000],
+    "numOfPosts": 2000,
+    "numOfArticles": 500,
+    "numOfSeries": 100
+  },
+  {
+    "name": "QC 1 Community 3",
+    "id": "c3e36583-784c-4ae3-8228-de0a34312333",
+    "groupId": "b5b6a8b9-4bf3-4dbd-9e5e-8a7fcdeaa0a3",
+    "userId": "270586f4-b659-45a3-8a2a-adc932f5ae15",
+    "username": "qc1user2",
+    "imageId": "e20f2c26-d6a8-4886-aa42-66075202dfc3",
+    "memberRange": [2000, 4000],
+    "numOfPosts": 2000,
+    "numOfArticles": 500,
+    "numOfSeries": 100
+  },
+  {
+    "name": "QC 1 Community 4",
+    "id": "e9d979d3-15ca-4fbf-b271-552df383b4f4",
+    "groupId": "98b6d146-2a91-4906-bf32-7db9fa79d70c",
+    "userId": "05cac9ea-8fc8-4932-b682-ed83d64659b7",
+    "imageId": "56ac5ab6-9a7a-4fc8-9cd4-497b63a5fa56",
+    "username": "qc1user4",
+    "memberRange": [3000, 5000],
+    "numOfPosts": 2000,
+    "numOfArticles": 500,
+    "numOfSeries": 100
+  }
+]

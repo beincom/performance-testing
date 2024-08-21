@@ -1,15 +1,23 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { check, group, sleep } from 'k6'; // @ts-ignore
+import { check, group, sleep } from 'k6';
+import execution from 'k6/execution'; // @ts-ignore
 import httpagg from 'k6/x/httpagg';
 
 import { Actor } from '../entities/actor';
-import { generateRandomNumber, generateRandomString } from '../utils/utils';
+import { generateActorID, generateRandomNumber, generateRandomString } from '../utils/utils';
 
 export async function newsfeedScenario(): Promise<void> {
-  const vuID = __VU; // Get current virtual user's id
+  const { idInInstance, idInTest, iterationInInstance, iterationInScenario } = execution.vu;
+
+  const uniqueActorId = generateActorID({
+    idInInstance,
+    idInTest,
+    iterationInInstance,
+    iterationInScenario,
+  });
 
   await group('NewsfeedSession', async () => {
-    const actor = Actor.init(vuID);
+    const actor = Actor.init(uniqueActorId);
 
     const randomGetNewsfeedTimes = generateRandomNumber(5, 25);
 
@@ -213,11 +221,13 @@ async function demoReadContent(actor: Actor, contentId: string, contentType: str
   // Reading time is between 15 seconds to 3 minutes
   sleep(generateRandomNumber(15, 180));
 
-  // Scroll down to the comments section to read all 20 latest comments
-  await demoGetCommentList(actor, contentId);
+  if (contentType === 'POST' || contentType === 'ARTICLE') {
+    // Scroll down to the comments section to read all 20 latest comments
+    await demoGetCommentList(actor, contentId);
 
-  // Leave a level 1 comment with random characters (1 to 2000 characters)
-  await demoComment(actor, contentId);
+    // Leave a level 1 comment with random characters (1 to 2000 characters)
+    await demoComment(actor, contentId);
+  }
 
   return true;
 }

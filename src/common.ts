@@ -14,7 +14,7 @@ const SERVICE_ENV = {
   INTERNAL: {
     GROUP: {
       HOST: 'https://api.beincom.tech/v1/group',
-      LATEST_VER: '1.1.0',
+      LATEST_VER: '2.0.0',
     },
     USER: {
       HOST: 'https://api.beincom.tech/v1/user',
@@ -26,13 +26,13 @@ const SERVICE_ENV = {
     },
     CONTENT: {
       HOST: 'https://api.beincom.tech/v1/content',
-      LATEST_VER: '1.13.0',
+      LATEST_VER: '1.16.0',
     },
   },
   DEVELOP: {
     GROUP: {
       HOST: 'https://api.beincom.io/v1/group',
-      LATEST_VER: '1.1.0',
+      LATEST_VER: '1.5.0',
     },
     USER: {
       HOST: 'https://api.beincom.io/v1/user',

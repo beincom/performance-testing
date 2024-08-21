@@ -1,5 +1,5 @@
 import { CONFIGS } from '../../config';
-import { generateRandomString } from '../../src/utils/utils';
+import { generateRandomString } from '../utils/utils';
 
 export type SeedUser = {
   username: string;
